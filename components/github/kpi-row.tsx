@@ -18,7 +18,9 @@ export function buildKpiCards(
   options: { showRemoved: boolean; showIssues: boolean }
 ): KpiCard[] {
   const k = kpis;
-  const fmt = (n: number | undefined) => (n ?? 0).toLocaleString();
+  // Pinned locale: an unpinned format differs between the server and a
+  // visitor in another locale, which is a hydration mismatch.
+  const fmt = (n: number | undefined) => (n ?? 0).toLocaleString("en-US");
 
   return [
     { label: "Commits", value: fmt(k?.commits), accent: "#0d6efd" },

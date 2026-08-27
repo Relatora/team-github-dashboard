@@ -10,6 +10,7 @@ import { KpiRow, buildKpiCards } from "./kpi-row";
 import { ReportView } from "./report-view";
 import { TileGrid, type Tile, type TileLayouts } from "./tile-grid";
 import { PrintDocument } from "./print-document";
+import { LocalTime } from "@/components/ui/local-time";
 import { CategoryBarChart, CategoryDonutChart, PALETTE, TimeSeriesChart } from "@/components/charts";
 
 import {
@@ -72,7 +73,10 @@ export function Dashboard({ user }: { user: SessionUser }) {
   const { data: settings = { ...DEFAULT_DEV_SETTINGS, source: "default" } as ResolvedDevSettings } =
     useQuery({ queryKey: ["settings"], queryFn: getSettings });
 
-  const { data: roster = [] } = useQuery({ queryKey: ["roster"], queryFn: getUsers });
+  const { data: roster = [], isSuccess: rosterLoaded } = useQuery({
+    queryKey: ["roster"],
+    queryFn: getUsers,
+  });
 
   const { data: runs } = useQuery({ queryKey: ["runs"], queryFn: () => getRuns(1) });
   const lastRun = runs?.[0];
@@ -157,6 +161,10 @@ export function Dashboard({ user }: { user: SessionUser }) {
   } = useQuery({
     queryKey: ["report", reportBody],
     queryFn: () => getReport(reportBody),
+    // Wait for the roster. Until it arrives the selection is empty, which sends
+    // the "nobody" sentinel and returns 409, flashing a needs-a-scan message at
+    // someone whose data is about to load fine.
+    enabled: rosterLoaded,
     placeholderData: (previous) => previous,
     // A 409 means "no data yet", which is a stable answer. Retrying it wastes
     // requests and delays the message telling the user to run a scan.
@@ -407,9 +415,7 @@ export function Dashboard({ user }: { user: SessionUser }) {
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-lg font-semibold">GitHub Work Dashboard</h1>
         <p className="text-xs text-muted-foreground">
-          {lastRun
-            ? `Last synced ${new Date(lastRun.generatedAt).toLocaleString()}`
-            : "No scan recorded yet"}
+          {lastRun ? <>Last synced <LocalTime value={lastRun.generatedAt} /></> : "No scan recorded yet"}
         </p>
       </div>
 
@@ -462,9 +468,11 @@ export function Dashboard({ user }: { user: SessionUser }) {
         metaLines={[
           `Users: ${selectedUsers.map((h) => nameFrom(roster, h)).join(", ") || "all"}`,
           `Period: ${periodLabel(filters)}`,
-          lastRun ? `Last synced: ${new Date(lastRun.generatedAt).toLocaleString()}` : null,
+          lastRun
+            ? `Last synced: ${new Date(lastRun.generatedAt).toISOString().slice(0, 16).replace("T", " ")} UTC`
+            : null,
           `Counting: ${settings.calcMode}`,
-          `Generated: ${new Date().toLocaleString()}`,
+          `Generated: ${new Date().toISOString().slice(0, 16).replace("T", " ")} UTC`,
         ].filter((line): line is string => Boolean(line))}
         kpiCards={kpiCards}
         metrics={metrics as Metrics | undefined}

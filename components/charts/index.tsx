@@ -31,6 +31,15 @@ export const PALETTE = [
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+/**
+ * Number formatting is pinned to one locale.
+ *
+ * An unpinned toLocaleString formats with the server's locale during the server
+ * render and the browser's on the client, so "5,569" and "5.569" become a
+ * hydration mismatch on any visitor whose locale differs from the host's.
+ */
+const formatNumber = (value: number) => value.toLocaleString("en-US");
+
 export type CountRow = { _id: string; count: number };
 export type TimeRow = { _id: { year: number; month: number }; count: number };
 
@@ -72,7 +81,7 @@ function ChartTooltip({
     <div className="rounded-md border border-border bg-popover px-2.5 py-1.5 text-xs shadow-md">
       <div className="font-medium">{name}</div>
       <div className="text-muted-foreground">
-        {(point.value ?? 0).toLocaleString()}
+        {formatNumber(point.value ?? 0)}
         {suffix ? ` ${suffix}` : ""}
       </div>
     </div>
@@ -186,7 +195,7 @@ export function CategoryDonutChart({
           <li
             key={row.category}
             className="flex items-center gap-2 py-0.5"
-            title={`${row.category}: ${row.value.toLocaleString()}`}
+            title={`${row.category}: ${formatNumber(row.value)}`}
           >
             <span
               className="size-2.5 shrink-0 rounded-sm"
@@ -194,7 +203,7 @@ export function CategoryDonutChart({
               aria-hidden
             />
             <span className="truncate text-muted-foreground">{row.category}</span>
-            <span className="ml-auto shrink-0 tabular-nums">{row.value.toLocaleString()}</span>
+            <span className="ml-auto shrink-0 tabular-nums">{formatNumber(row.value)}</span>
           </li>
         ))}
       </ul>
