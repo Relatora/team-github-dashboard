@@ -1,0 +1,20 @@
+{
+  "githubUsernames": [],
+  "userDisplayNames": {},
+  "organizations": [],
+  "repositories": [],
+  "startDate": "2022-01-01",
+  "endDate": "today",
+  "branches": "all",
+  "branchScanScope": "all",
+  "serverSideAuthorFilter": true,
+  "rateLimitMinRemaining": 150,
+  "rateLimitAction": "stop",
+  "fetchCommitDetails": true,
+  "excludeMergeCommitsFromStats": true,
+  "includeIssues": true,
+  "includePullRequests": false,
+  "includeReviews": false,
+  "includeClosed": false,
+  "reportNotes": []
+}
