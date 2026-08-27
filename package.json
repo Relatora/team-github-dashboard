@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "create-user": "tsx scripts/create-user.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
