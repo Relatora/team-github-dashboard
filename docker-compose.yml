@@ -1,0 +1,40 @@
+# Local stack with Postgres, as an alternative to a hosted database.
+#
+# Not a production deployment: the database password is in plain text and the
+# volume is local. It exists so the application can be run end to end without
+# signing up for anything.
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: tgd
+      POSTGRES_PASSWORD: tgd
+      POSTGRES_DB: tgd
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # The application must not start against a database still initialising,
+      # or the first migration fails and the container restarts in a loop.
+      test: ["CMD-SHELL", "pg_isready -U tgd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://tgd:tgd@db:5432/tgd
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in your environment or .env}
+      AUTH_ENABLED: ${AUTH_ENABLED:-true}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:
