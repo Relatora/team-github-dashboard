@@ -27,11 +27,17 @@ npm run scan             # exits 2 when the rate limit stopped it early
 npm run enrich
 npm run seed-demo
 npm run create-user -- --email you@example.com --role admin
+npm run verify-invariants   # needs a database; see below
 ```
 
-There is no test suite yet. Two parity scripts check the riskiest ports against
-the Python original: `scripts/verify-categorize.ts` and
-`scripts/verify-ignore-globs.ts`.
+There is no test suite yet. Three verification scripts cover the riskiest parts:
+
+- `scripts/verify-categorize.ts` and `scripts/verify-ignore-globs.ts` compare the
+  port against the Python original. They need no database and run in CI.
+- `npm run verify-invariants` checks the never-clobber rule against a live
+  database: enrich a commit, re-upsert it with no statistics, assert the numbers
+  survived. Run it after touching the upsert in
+  `lib/db/repositories/commits.ts`. Use a throwaway database or a Neon branch.
 
 ## Conventions
 

@@ -114,6 +114,7 @@ npm run enrich         # backfill line statistics without a full scan
 npm run create-user -- --email you@example.com --role admin
 npm run seed-demo      # synthetic data
 npm run import-mongo   # one-off migration from the Python tool's MongoDB
+npm run verify-invariants  # check the never-clobber rule against a live database
 ```
 
 `npm run scan` exits **2** when the rate-limit budget stopped it early, so a
@@ -147,6 +148,10 @@ API quota.
 
 ## Further reading
 
+- [docs/NEON_SETUP.md](docs/NEON_SETUP.md) - getting a database connection
+  string, step by step, and which free-tier limits you will actually notice.
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Docker, Vercel, scheduled scans,
+  and the one constraint that decides the deployment shape.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - how a scan flows through the
   system, and the invariants that must survive future changes.
 - [docs/AUTH.md](docs/AUTH.md) - the auth design, the kill switch, and its known
