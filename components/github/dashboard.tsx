@@ -219,13 +219,42 @@ export function Dashboard({ user }: { user: SessionUser }) {
     setFilters((previous) => applyFilterChange(previous, patch));
   }, []);
 
+  /**
+   * Layout persistence is driven by user gestures, not by layout changes.
+   *
+   * onLayoutChange also fires on mount, on breakpoint changes, and on any
+   * programmatic update. Saving from it made Reset layout impossible: clearing
+   * storage immediately triggered a change event that wrote the cleared layout
+   * straight back.
+   *
+   * So the latest layout is tracked in a ref, and only the end of a drag or a
+   * resize commits it. The ref covers either callback order, since the grid
+   * does not promise whether the change or the gesture-end fires first.
+   */
+  const latestLayouts = useRef(layouts);
+
+  /**
+   * Bumped by Reset layout to force the grid to remount.
+   *
+   * react-grid-layout keeps its own copy of the layout after mount and does not
+   * re-read the prop, so setting state alone clears storage without moving a
+   * single tile. Remounting is what actually applies the defaults.
+   */
+  const [layoutVersion, setLayoutVersion] = useState(0);
+
   const handleLayoutChange = useCallback((next: TileLayouts) => {
+    latestLayouts.current = next;
     setLayouts(next);
-    saveLayouts(next);
+  }, []);
+
+  const handleInteractionEnd = useCallback(() => {
+    saveLayouts(latestLayouts.current);
   }, []);
 
   const handleResetLayout = useCallback(() => {
+    latestLayouts.current = DEFAULT_LAYOUTS;
     setLayouts(DEFAULT_LAYOUTS);
+    setLayoutVersion((v) => v + 1);
     clearLayouts();
     toast.info("Layout reset.");
   }, []);
@@ -417,7 +446,13 @@ export function Dashboard({ user }: { user: SessionUser }) {
           ))}
         </div>
       ) : (
-        <TileGrid tiles={tiles} layouts={layouts} onLayoutChange={handleLayoutChange} />
+        <TileGrid
+          key={layoutVersion}
+          tiles={tiles}
+          layouts={layouts}
+          onLayoutChange={handleLayoutChange}
+          onInteractionEnd={handleInteractionEnd}
+        />
       )}
 
       {/* Off-screen print document, captured by Export PDF. */}

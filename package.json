@@ -16,7 +16,8 @@
     "scan": "tsx scripts/scan.ts",
     "enrich": "tsx scripts/enrich.ts",
     "import-mongo": "tsx scripts/import-mongo.ts",
-    "seed-demo": "tsx scripts/seed-demo.ts"
+    "seed-demo": "tsx scripts/seed-demo.ts",
+    "verify-invariants": "tsx scripts/verify-invariants.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

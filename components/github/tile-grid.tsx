@@ -41,11 +41,19 @@ export function TileGrid({
   tiles,
   layouts,
   onLayoutChange,
+  onInteractionEnd,
   rowHeight = 110,
 }: {
   tiles: Tile[];
   layouts: TileLayouts;
   onLayoutChange: (layouts: TileLayouts) => void;
+  /**
+   * Fired only when a person finishes dragging or resizing.
+   *
+   * onLayoutChange also fires on mount, on breakpoint changes, and on any
+   * programmatic update, so it cannot be used to decide when to persist.
+   */
+  onInteractionEnd?: () => void;
   rowHeight?: number;
 }) {
   // The grid needs a measured container width, which is not available during a
@@ -91,6 +99,8 @@ export function TileGrid({
           // gone rather than ported.
           compactor={verticalCompactor}
           onLayoutChange={(_current: Layout, all: ResponsiveLayouts<string>) => onLayoutChange(all)}
+          onDragStop={() => onInteractionEnd?.()}
+          onResizeStop={() => onInteractionEnd?.()}
         >
           {children}
         </Responsive>

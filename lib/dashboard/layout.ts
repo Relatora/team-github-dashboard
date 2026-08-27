@@ -87,8 +87,28 @@ export function loadLayouts(): ResponsiveLayouts<string> {
       const savedForBreakpoint = (saved[breakpoint] ?? []).filter((item) => known.has(item.i));
       const present = new Set(savedForBreakpoint.map((item) => item.i));
       const defaults = [...(fallback ?? [])];
-      const missing = defaults.filter((item) => !present.has(item.i));
-      merged[breakpoint] = savedForBreakpoint.length ? [...savedForBreakpoint, ...missing] : defaults;
+      if (!savedForBreakpoint.length) {
+        merged[breakpoint] = defaults;
+        continue;
+      }
+
+      // Append tiles the saved layout does not know about BELOW everything it
+      // does, rather than at their default coordinates. Reusing the defaults
+      // means a new tile lands on top of a saved one, and compaction then
+      // reshuffles the arrangement the user built. Placing them at the bottom
+      // leaves the saved layout intact and puts the new tile somewhere
+      // predictable.
+      const bottom = savedForBreakpoint.reduce((max, item) => Math.max(max, item.y + item.h), 0);
+      let nextY = bottom;
+      const missing = defaults
+        .filter((item) => !present.has(item.i))
+        .map((item) => {
+          const placed = { ...item, x: 0, y: nextY };
+          nextY += item.h;
+          return placed;
+        });
+
+      merged[breakpoint] = [...savedForBreakpoint, ...missing];
     }
 
     return merged;

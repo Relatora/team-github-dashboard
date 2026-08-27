@@ -1,4 +1,3 @@
-import "server-only";
 import { neon } from "@neondatabase/serverless";
 import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
@@ -6,6 +5,22 @@ import { Pool } from "pg";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { connectionString, driverFor } from "./driver";
+
+/**
+ * Guard against this module reaching the browser.
+ *
+ * `server-only` is the usual tool, but it throws under plain Node too, and the
+ * CLI scripts legitimately import this outside Next. This check catches the
+ * case that actually matters - a client component pulling the data layer into
+ * the browser bundle - while leaving `tsx scripts/...` working.
+ */
+if (typeof window !== "undefined") {
+  throw new Error(
+    "lib/db is server only. A client component is importing it, which would ship " +
+      "database credentials and driver code to the browser. Import types from " +
+      "lib/settings/types or call an API route instead."
+  );
+}
 
 /**
  * Database handle for request handling.
