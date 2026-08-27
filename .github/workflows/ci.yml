@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to the same branch cancels the run still in flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # The build must not need real credentials. These are placeholders
+          # that satisfy startup validation; nothing in the build connects.
+          AUTH_SECRET: ci-placeholder-secret-at-least-32-bytes-long
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+
+      - name: Verify the categorization port against the Python original
+        # The parity fixture is checked in, so this runs without a database or
+        # a GitHub token. It is the one check that would catch a subtle
+        # regression in the keyword table or its fallback chain.
+        run: npx tsx scripts/verify-categorize.ts fixtures/python-categories.json
+
+      - name: Verify the ignore globs against the Python original
+        run: npx tsx scripts/verify-ignore-globs.ts fixtures/python-ignore-paths.json

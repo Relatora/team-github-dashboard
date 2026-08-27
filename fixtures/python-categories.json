@@ -1,0 +1,1030 @@
+[
+ {
+  "m": "fix the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "fixed the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "fixes the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "fixing the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "bug the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "bugfix the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "hotfix the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "resolve the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "resolved the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "patch the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "patched the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "correct the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "corrected the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "repair the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "prevent the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "prevented the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "handle the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "handled the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "handling the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "solve the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "solved the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "workaround the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "account the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "accounted the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "defect the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "defective the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "debug the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "debugged the payment reconciliation module",
+  "c": "Fixes"
+ },
+ {
+  "m": "remove the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "removed the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "removing the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "delete the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "deleted the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "drop the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "dropped the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "deprecate the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "deprecated the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "clean the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "cleaned the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "cleanup the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "revert the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "reverted the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "disable the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "disabled the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "exclude the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "excluded the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "restrict the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "restricted the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "strip the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "stripped the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "discard the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "discarded the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "discarding the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "eliminate the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "eliminated the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "eliminating the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "trim the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "trimmed the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "prune the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "pruned the payment reconciliation module",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "add the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "added the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "adding the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "implement the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "implemented the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "introduce the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "introduced the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "create the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "created the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "new the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "support the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "enable the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "enabled the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "init the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "initial the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "initialize the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "initialized the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "first the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "integrate the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "integrated the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "integrating the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "integration the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "complete the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "completed the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "finalize the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "finalized the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "finish the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "finished the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "start the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "started the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "setup the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "scaffold the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "scaffolded the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "export the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "exported the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "import the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "imported the payment reconciliation module",
+  "c": "Features & additions"
+ },
+ {
+  "m": "doc the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "docs the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "document the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "documented the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "readme the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "comment the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "comments the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "config the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "configure the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "build the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "ci the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "docker the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "dockerfile the payment reconciliation module",
+  "c": "Docs"
+ },
+ {
+  "m": "pipeline the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "workflow the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "version the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "dependency the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "dependencies the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "deps the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "bump the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "ignore the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "env the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "release the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "chore the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "deploy the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "deployed the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "deployment the payment reconciliation module",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "refactor the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "refactored the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "improve the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "improved the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "update the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "updated the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "change the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "changed the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "modify the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "modified the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "modification the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "optimize the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "optimized the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "optimise the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "optimised the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "rework the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reworked the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "enhance the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "enhanced the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "adjust the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "adjusted the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "convert the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "converted the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "compact the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "made the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "move the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "moved the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "rename the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "renamed the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "wip the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "attempt the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "refine the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "refined the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reformat the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reformated the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reformatted the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "format the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "formatted the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "slim the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "slimmed the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "sort the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "sorted the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "separate the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "separated the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "separating the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "switch the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "switched the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "replace the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "replaced the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "increase the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "increased the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "decrease the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "decreased the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reduce the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reduced the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "use the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "used the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "using the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "set the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tweak the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tweaked the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tune the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tuned the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "experiment the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "experimented the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "try the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tried the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "trying the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "test the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "tested the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "testing the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "restructure the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "restructured the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reorganize the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "reorganized the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "simplify the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "simplified the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "streamline the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "streamlined the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "standardize the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "standardized the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "consolidate the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "consolidated the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "migrate the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "migrated the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "upgrade the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "upgraded the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "extend the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "extended the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "expand the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "expanded the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "polish the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "polished the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "revise the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "revised the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "restore the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "restored the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "now the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "getting the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "make the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "making the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "work the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "working the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "worked the payment reconciliation module",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "fixed the add button handler",
+  "c": "Fixes"
+ },
+ {
+  "m": "removed the new export feature",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "added a fix for the retry loop",
+  "c": "Features & additions"
+ },
+ {
+  "m": "update the docs and add a build step",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "clean up after adding the new parser",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "improve the fix for the timezone bug",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "v3.01 : add hash",
+  "c": "Features & additions"
+ },
+ {
+  "m": "[TICKET-341] fix the null pointer",
+  "c": "Fixes"
+ },
+ {
+  "m": "chore: bump dependencies",
+  "c": "Build, config & CI"
+ },
+ {
+  "m": "(hotfix) correct the invoice total",
+  "c": "Fixes"
+ },
+ {
+  "m": "#442 - remove dead config",
+  "c": "Removals & cleanup"
+ },
+ {
+  "m": "1.2.3",
+  "c": "Other changes"
+ },
+ {
+  "m": "2026-08-27",
+  "c": "Other changes"
+ },
+ {
+  "m": "a1b2c3d",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "feat: introduce the audit log",
+  "c": "Features & additions"
+ },
+ {
+  "m": "Merge branch 'develop' into main",
+  "c": "Merges & branch sync"
+ },
+ {
+  "m": "Merge pull request #12 from example/feature",
+  "c": "Merges & branch sync"
+ },
+ {
+  "m": "merge remote-tracking branch",
+  "c": "Merges & branch sync"
+ },
+ {
+  "m": "merged the two schedulers",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "titration curve tweaks",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "kalman filter coefficients",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "electrode spacing",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "throughput on the ingest path",
+  "c": "Improvements & refactors"
+ },
+ {
+  "m": "",
+  "c": "Other changes"
+ },
+ {
+  "m": "   ",
+  "c": "Other changes"
+ },
+ {
+  "m": "...",
+  "c": "Other changes"
+ },
+ {
+  "m": "!!!",
+  "c": "Other changes"
+ },
+ {
+  "m": "-",
+  "c": "Other changes"
+ },
+ {
+  "m": "123 456",
+  "c": "Other changes"
+ }
+]
