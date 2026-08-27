@@ -7,7 +7,7 @@
  * There is deliberately no public signup route: this is a private team tool, so
  * accounts are created by an operator.
  */
-import "dotenv/config";
+import "../lib/config/load-env";
 import { hashPassword, validatePassword } from "../lib/auth/password";
 import { isRole, ROLES, type Role } from "../lib/auth/roles";
 import { createUser, findUserByEmail, setPassword, setRoles } from "../lib/db/repositories/users";

@@ -1,5 +1,5 @@
 import type { CountRow, TimeRow } from "@/components/charts";
-import type { ResolvedDevSettings } from "@/lib/settings";
+import type { ResolvedDevSettings } from "@/lib/settings/types";
 
 /**
  * Browser-side API client.

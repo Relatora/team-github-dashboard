@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { commits, type NewCommitRow } from "@/lib/db/schema";
+import { inList } from "@/lib/db/sql-helpers";
 import type { PooledDatabase } from "@/lib/db/pool";
 
 /**
@@ -91,7 +92,7 @@ export async function findEnrichedShas(
     const batch = shas.slice(i, i + 1000);
     const rows = await db.execute<{ sha: string }>(sql`
       select sha from ${commits}
-      where sha = any(${batch})
+      where ${inList(sql`sha`, batch)}
         and stats_version = ${statsVersion}
         and additions is not null
     `);
@@ -118,7 +119,7 @@ export async function findCommitsNeedingStats(
     select sha, api_url from ${commits}
     where api_url <> ''
       and (stats_version is null or stats_version < ${statsVersion} or additions is null)
-      ${logins ? sql`and lower(author_login) = any(${logins})` : sql``}
+      ${logins ? sql`and ${inList(sql`lower(author_login)`, logins)}` : sql``}
     order by committed_at desc nulls last
     limit ${limit}
   `);

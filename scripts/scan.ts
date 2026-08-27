@@ -9,7 +9,7 @@
  * calls exactly the same code as the "Refresh data" button, so a scheduled scan
  * and a manual one cannot drift apart.
  */
-import "dotenv/config";
+import "../lib/config/load-env";
 import { applyScanConfigOverride } from "../lib/config";
 import { runScan } from "../lib/github/run-scan";
 

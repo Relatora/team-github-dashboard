@@ -1,34 +1,43 @@
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
+import "server-only";
+import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-serverless";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
+import { Pool as PgPool } from "pg";
 import ws from "ws";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
+import { connectionString, driverFor } from "./driver";
 
 /**
  * Database handle for long running work: the scanner, the enrichment sweep, and
  * the CLI scripts.
  *
- * Unlike the HTTP driver in ./client, this speaks the Postgres wire protocol
- * over a WebSocket and therefore supports transactions, which the batched
- * commit upserts need. It also keeps a real connection open, so callers must
- * close the pool when they are done or a CLI script will hang on exit.
+ * Unlike the HTTP handle in ./client, this supports transactions, which the
+ * batched commit upserts need. It also holds real connections, so callers must
+ * close it or a CLI script hangs on exit instead of finishing.
  *
- * In Node there is no global WebSocket implementation before the runtime
- * provides one, so point neonConfig at ws.
+ * Neon's WebSocket pool and node-postgres both speak enough of the same API
+ * that Drizzle papers over the difference; the driver is still chosen from the
+ * host, because Neon's pool cannot connect to an ordinary Postgres server.
  */
+
+// Node has no global WebSocket in every version this may run on, and Neon's
+// pool needs one.
 if (!globalThis.WebSocket) {
   neonConfig.webSocketConstructor = ws;
 }
 
-export function createPool() {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error(
-      "DATABASE_URL is not set. Copy .env.example to .env.local and paste your Neon connection string."
-    );
-  }
-  const pool = new Pool({ connectionString: url });
-  const db = drizzle(pool, { schema });
-  return { db, pool, close: () => pool.end() };
-}
+/** As in ./client: one representative type, so call sites do not face a union. */
+export type PooledDatabase = NodePgDatabase<typeof schema>;
 
-export type PooledDatabase = ReturnType<typeof createPool>["db"];
+export function createPool(): { db: PooledDatabase; close: () => Promise<void> } {
+  const url = connectionString();
+
+  if (driverFor(url) === "neon") {
+    const pool = new NeonPool({ connectionString: url });
+    return { db: drizzleNeon(pool, { schema }) as unknown as PooledDatabase, close: () => pool.end() };
+  }
+
+  const pool = new PgPool({ connectionString: url });
+  return { db: drizzlePg(pool, { schema }), close: () => pool.end() };
+}

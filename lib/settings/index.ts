@@ -1,50 +1,27 @@
+import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { appSettings } from "@/lib/db/schema";
+import {
+  DEFAULT_DEV_SETTINGS,
+  GITHUB_APP,
+  GLOBAL_EMAIL,
+  coerceDevSettings,
+  type ResolvedDevSettings,
+} from "./types";
 
 /**
- * Dashboard settings, resolved per user with an organization-wide fallback.
+ * Reading and writing dashboard settings.
+ *
+ * Server only. The types and defaults live in ./types, which the dashboard
+ * components import; this module touches the database and must never reach the
+ * client bundle.
  *
  * Ported from AppSettingsController.js and the resolveDevSettings helper in
  * GitHub.jsx, which split this logic across the client and the server.
  */
 
-export const GITHUB_APP = "github-dashboard";
-
-/** Reserved email holding the organization-wide default. */
-export const GLOBAL_EMAIL = "__global__";
-
-export type DevSettings = {
-  /** Which line statistics the dashboard shows. */
-  calcMode: "cleaned" | "raw";
-  /** Lines Removed is hidden by default: it reliably confuses non-technical readers. */
-  showRemoved: boolean;
-  /** Whitelist of handles selectable in the Users control. Empty means no restriction. */
-  shownUsers: string[];
-  showIssues: boolean;
-};
-
-export const DEFAULT_DEV_SETTINGS: DevSettings = {
-  calcMode: "cleaned",
-  showRemoved: false,
-  shownUsers: [],
-  showIssues: true,
-};
-
-export type ResolvedDevSettings = DevSettings & {
-  /** Where the effective values came from, so the interface can say so. */
-  source: "user" | "global" | "default";
-};
-
-function coerce(raw: Record<string, unknown> | undefined): Partial<DevSettings> {
-  if (!raw) return {};
-  const out: Partial<DevSettings> = {};
-  if (raw.calcMode === "raw" || raw.calcMode === "cleaned") out.calcMode = raw.calcMode;
-  if (typeof raw.showRemoved === "boolean") out.showRemoved = raw.showRemoved;
-  if (typeof raw.showIssues === "boolean") out.showIssues = raw.showIssues;
-  if (Array.isArray(raw.shownUsers)) out.shownUsers = raw.shownUsers.map(String);
-  return out;
-}
+export * from "./types";
 
 /**
  * Personal override, then the global default, then the hardcoded defaults.
@@ -61,8 +38,8 @@ export async function resolveDevSettings(userEmail?: string | null): Promise<Res
     .from(appSettings)
     .where(and(inArray(appSettings.userEmail, emails), eq(appSettings.app, GITHUB_APP)));
 
-  const global = coerce(rows.find((r) => r.userEmail === GLOBAL_EMAIL)?.devSettings);
-  const personal = coerce(
+  const global = coerceDevSettings(rows.find((r) => r.userEmail === GLOBAL_EMAIL)?.devSettings);
+  const personal = coerceDevSettings(
     userEmail ? rows.find((r) => r.userEmail === userEmail.toLowerCase())?.devSettings : undefined
   );
 
@@ -100,10 +77,7 @@ export async function saveSettings(
   await getDb()
     .insert(appSettings)
     .values(values)
-    .onConflictDoUpdate({
-      target: [appSettings.userEmail, appSettings.app],
-      set,
-    });
+    .onConflictDoUpdate({ target: [appSettings.userEmail, appSettings.app], set });
 }
 
 /**

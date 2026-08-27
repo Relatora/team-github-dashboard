@@ -1,39 +1,54 @@
+import "server-only";
 import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
+import { drizzle as drizzlePg } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
+import { connectionString, driverFor } from "./driver";
 
 /**
  * Database handle for request handling.
  *
- * This uses Neon's HTTP driver, which sends one statement per round trip and
- * holds no connection. That is the right shape for route handlers, which are
- * short lived and may run in many instances at once.
+ * Against Neon this uses the HTTP driver: one statement per round trip, no held
+ * connection, which is the right shape for route handlers that are short lived
+ * and may run in many instances at once. It cannot do transactions; anything
+ * that needs one uses the pool in ./pool instead.
  *
- * It cannot do transactions. Anything that needs one - the batched upserts in
- * the scanner - must use the WebSocket pool from ./pool instead.
+ * Against an ordinary Postgres server it uses node-postgres, because Neon's
+ * driver speaks Neon's protocol rather than the Postgres wire protocol and
+ * simply hangs when pointed anywhere else.
  */
-function connectionString(): string {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error(
-      "DATABASE_URL is not set. Copy .env.example to .env.local and paste your Neon connection string."
-    );
-  }
-  return url;
-}
+
+/**
+ * Both drivers are typed as node-postgres.
+ *
+ * They produce different concrete Drizzle classes, and a union of the two
+ * collapses the query builder overloads at every call site. Both extend
+ * PgDatabase and both return `{ rows }` from execute, so one representative
+ * type keeps every caller correctly typed. The cast is confined to this file.
+ */
+export type Database = NodePgDatabase<typeof schema>;
 
 // Created lazily so importing this module never throws at build time, when the
 // environment is not necessarily populated.
-let cached: ReturnType<typeof create> | null = null;
+let cached: Database | null = null;
 
-function create() {
-  return drizzle(neon(connectionString()), { schema });
+function create(): Database {
+  const url = connectionString();
+
+  if (driverFor(url) === "neon") {
+    return drizzleNeon(neon(url), { schema }) as unknown as Database;
+  }
+
+  // One pool per process, reused across requests. A pool per request would
+  // exhaust the server's connection limit under any real load.
+  return drizzlePg(new Pool({ connectionString: url }), { schema });
 }
 
-export function getDb() {
-  if (!cached) cached = create();
+export function getDb(): Database {
+  cached ??= create();
   return cached;
 }
 
-export type Database = ReturnType<typeof getDb>;
 export { schema };

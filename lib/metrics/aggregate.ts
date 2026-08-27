@@ -1,6 +1,7 @@
 import { sql, type SQL } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { resolvePeriodFilters, type PeriodFilters } from "./period";
+import { inList } from "@/lib/db/sql-helpers";
 
 /**
  * The dashboard aggregation.
@@ -100,7 +101,7 @@ export async function getMetrics(query: MetricsQuery): Promise<Metrics> {
   }
 
   // One WHERE clause, reused by every query below so they cannot disagree.
-  const conditions: SQL[] = [sql`lower(author_login) = any(${logins})`];
+  const conditions: SQL[] = [inList(sql`lower(author_login)`, logins)];
   if (query.repo) conditions.push(sql`repository = ${query.repo}`);
   if (period) {
     conditions.push(sql`committed_at >= ${period.start} and committed_at < ${period.end}`);
@@ -163,7 +164,7 @@ export async function getMetrics(query: MetricsQuery): Promise<Metrics> {
    */
   const issueConditions: SQL[] = [
     sql`type = 'issue'`,
-    sql`lower(author_login) = any(${logins})`,
+    inList(sql`lower(author_login)`, logins),
   ];
   if (period) {
     issueConditions.push(sql`created_at >= ${period.start} and created_at < ${period.end}`);

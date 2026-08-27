@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FetchUsersDialog } from "./fetch-users-dialog";
-import type { ResolvedDevSettings } from "@/lib/settings";
+import type { ResolvedDevSettings } from "@/lib/settings/types";
 import type { RosterUser } from "@/lib/api/github";
 
 /**

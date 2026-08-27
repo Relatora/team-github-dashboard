@@ -10,7 +10,7 @@
  * `mongodb` is a devDependency only. Once this has run, both the script and the
  * dependency can be deleted.
  */
-import "dotenv/config";
+import "../lib/config/load-env";
 import { MongoClient, type Document } from "mongodb";
 import { categorize } from "../lib/github/categorize";
 import { STATS_VERSION } from "../lib/github/stats";

@@ -12,7 +12,7 @@
  * The data is obviously synthetic and should never be mistaken for real: the
  * repositories and people are named as examples.
  */
-import "dotenv/config";
+import "../lib/config/load-env";
 import { categorize } from "../lib/github/categorize";
 import { STATS_VERSION } from "../lib/github/stats";
 import { createPool } from "../lib/db/pool";

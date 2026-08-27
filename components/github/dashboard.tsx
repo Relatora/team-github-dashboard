@@ -39,7 +39,7 @@ import {
   type Filters,
 } from "@/lib/dashboard/filters";
 import { consolidateByProject, nameFrom } from "@/lib/dashboard/projects";
-import { DEFAULT_DEV_SETTINGS, type ResolvedDevSettings } from "@/lib/settings";
+import { DEFAULT_DEV_SETTINGS, type ResolvedDevSettings } from "@/lib/settings/types";
 import { exportPdf } from "@/lib/dashboard/export-pdf";
 import type { SessionUser } from "@/lib/auth/roles";
 import { hasRole } from "@/lib/auth/roles";

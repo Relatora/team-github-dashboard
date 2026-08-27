@@ -9,7 +9,7 @@
  * current are skipped, and it stops cleanly when the quota floor is reached,
  * keeping everything it has fetched so far.
  */
-import "dotenv/config";
+import "../lib/config/load-env";
 import { applyScanConfigOverride, getScanConfig } from "../lib/config";
 import { GitHubClient, preflight } from "../lib/github/client";
 import { enrichCommits } from "../lib/github/enrich";
