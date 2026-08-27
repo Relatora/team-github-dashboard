@@ -76,11 +76,27 @@ export async function upsertIssues(db: PooledDatabase, rows: ItemRow[]): Promise
   return rows.length;
 }
 
+// Pull requests and reviews carry a subset of the issue columns, so the shared
+// ItemRow is narrowed explicitly rather than by destructuring the unwanted keys
+// into throwaway variables.
 export async function upsertPullRequests(db: PooledDatabase, rows: ItemRow[]): Promise<number> {
   if (!rows.length) return 0;
   await db
     .insert(pullRequests)
-    .values(rows.map(({ type: _type, updatedAt: _updatedAt, ...rest }) => rest))
+    .values(
+      rows.map((r) => ({
+        id: r.id,
+        number: r.number,
+        title: r.title,
+        state: r.state,
+        repository: r.repository,
+        authorLogin: r.authorLogin,
+        createdAt: r.createdAt,
+        closedAt: r.closedAt,
+        labels: r.labels,
+        url: r.url,
+      }))
+    )
     .onConflictDoUpdate({
       target: pullRequests.id,
       set: { state: sql`excluded.state`, closedAt: sql`excluded.closed_at` },
@@ -93,7 +109,16 @@ export async function upsertReviews(db: PooledDatabase, rows: ItemRow[]): Promis
   await db
     .insert(reviews)
     .values(
-      rows.map(({ type: _t, updatedAt: _u, closedAt: _c, labels: _l, ...rest }) => rest)
+      rows.map((r) => ({
+        id: r.id,
+        number: r.number,
+        title: r.title,
+        state: r.state,
+        repository: r.repository,
+        authorLogin: r.authorLogin,
+        createdAt: r.createdAt,
+        url: r.url,
+      }))
     )
     .onConflictDoUpdate({
       target: reviews.id,
