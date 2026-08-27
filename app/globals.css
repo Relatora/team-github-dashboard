@@ -89,3 +89,57 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+/*
+ * Report typography.
+ *
+ * The report is Markdown rendered to HTML and leans heavily on tables, so it
+ * needs real styling. This is scoped rather than global so it cannot leak into
+ * the rest of the interface.
+ */
+.report-prose h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.75rem; }
+.report-prose h2 { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.report-prose h3 { font-size: 0.9rem; font-weight: 600; margin: 1rem 0 0.375rem; }
+.report-prose p { margin: 0 0 0.75rem; }
+.report-prose ul { margin: 0 0 0.75rem; padding-left: 1.25rem; list-style: disc; }
+.report-prose ul ul { margin: 0.25rem 0; }
+.report-prose li { margin: 0.125rem 0; }
+.report-prose code {
+  background: var(--muted);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.9em;
+}
+.report-prose a { color: var(--primary); text-decoration: underline; }
+.report-prose strong { font-weight: 600; }
+
+/* Wide tables scroll inside their own box rather than widening the tile. */
+.report-prose table {
+  display: block;
+  overflow-x: auto;
+  width: max-content;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.85em;
+}
+.report-prose th,
+.report-prose td {
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.55rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.report-prose th { background: var(--muted); font-weight: 600; }
+
+/* react-grid-layout's placeholder is bright red by default. */
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary);
+  opacity: 0.15;
+  border-radius: var(--radius-lg);
+}
+.react-grid-item > .react-resizable-handle::after {
+  border-right-color: var(--muted-foreground);
+  border-bottom-color: var(--muted-foreground);
+}

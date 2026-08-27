@@ -10,9 +10,9 @@
  * keeping everything it has fetched so far.
  */
 import "dotenv/config";
+import { applyScanConfigOverride, getScanConfig } from "../lib/config";
 import { GitHubClient, preflight } from "../lib/github/client";
 import { enrichCommits } from "../lib/github/enrich";
-import { getScanConfig } from "../lib/config";
 import { resolveGitHubToken } from "../lib/config/env";
 import { createPool } from "../lib/db/pool";
 
@@ -22,6 +22,7 @@ function arg(name: string): string | undefined {
 }
 
 async function main() {
+  await applyScanConfigOverride();
   const config = getScanConfig();
 
   const client = new GitHubClient({

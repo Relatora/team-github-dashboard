@@ -10,6 +10,7 @@
  * and a manual one cannot drift apart.
  */
 import "dotenv/config";
+import { applyScanConfigOverride } from "../lib/config";
 import { runScan } from "../lib/github/run-scan";
 
 function arg(name: string): string | undefined {
@@ -20,6 +21,7 @@ function arg(name: string): string | undefined {
 const rebuild = process.argv.includes("--rebuild-cache");
 
 async function main() {
+  await applyScanConfigOverride();
   const started = Date.now();
 
   const outcome = await runScan(
