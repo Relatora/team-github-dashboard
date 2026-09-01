@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Generated report output
 /output
+
+# Local database dumps, if anyone points BACKUP_DIR inside the project.
+/backups

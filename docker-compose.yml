@@ -1,18 +1,41 @@
-# Local stack with Postgres, as an alternative to a hosted database.
+# Local Postgres, as an alternative to a hosted database.
 #
-# Not a production deployment: the database password is in plain text and the
-# volume is local. It exists so the application can be run end to end without
-# signing up for anything.
+# Not a production deployment: the password is in plain text and the volume is
+# local. It exists so the application can be run end to end without signing up
+# for anything.
+#
+# ---------------------------------------------------------------------------
+# DATA SAFETY, since this is where people lose a database
+#
+#   docker compose down        SAFE. Removes the containers, keeps the volume.
+#   docker compose restart     SAFE.
+#   docker compose down -v     DESTROYS the database. The -v removes volumes.
+#
+# The named volume below lives in Docker's own storage, outside any container,
+# so it survives a crash, a restart, and container recreation. It does NOT
+# survive `down -v`, `docker volume prune`, or a Docker Desktop reset, which is
+# why `npm run db:backup` exists: it writes a real file to a host path you
+# control. Run it before anything that touches Docker itself.
+# ---------------------------------------------------------------------------
+
+# Pinned so the volume is not silently renamed if this directory is renamed.
+# Compose derives the project name from the folder otherwise, and the volume
+# name derives from the project, so a rename orphans the data.
+name: team-github-dashboard
 
 services:
   db:
     image: postgres:17-alpine
+    container_name: tgd-db
+    # Comes back on its own after Docker Desktop or the machine restarts,
+    # rather than waiting to be started by hand.
+    restart: unless-stopped
     environment:
       POSTGRES_USER: tgd
       POSTGRES_PASSWORD: tgd
       POSTGRES_DB: tgd
     ports:
-      - "5432:5432"
+      - "55432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
@@ -25,16 +48,29 @@ services:
 
   app:
     build: .
+    profiles:
+      # Not started by a plain `docker compose up`, so the common case of
+      # "give me a database for local development" does not also build the
+      # application image. Start it with: docker compose --profile app up
+      - app
     depends_on:
       db:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://tgd:tgd@db:5432/tgd
-      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in your environment or .env}
+      # Passed through rather than required here. Compose interpolates every
+      # service even when you start only one, so a required-variable guard on
+      # the app makes `docker compose up -d db` fail for want of a secret the
+      # database does not need. The application validates this itself at
+      # startup, with a better message than Compose can give.
+      AUTH_SECRET: ${AUTH_SECRET:-}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
     ports:
       - "3000:3000"
 
 volumes:
+  # Explicitly named, for the same reason the project is: so it can be found,
+  # backed up, and inspected by a name a human recognises.
   db-data:
+    name: team-github-dashboard-data

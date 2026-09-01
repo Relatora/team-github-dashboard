@@ -50,25 +50,53 @@ Neon's **database branching** is genuinely useful here: branch the database,
 point a scan at the branch, verify the numbers, then throw it away. That is the
 safe way to test a change to the scanner against real data.
 
-## Docker
+## Local database with Docker
 
 ```bash
-docker compose up --build
+docker compose up -d db     # Postgres on localhost:55432
+npm run db:migrate
 ```
 
-Brings up Postgres and the application. `AUTH_SECRET` must be set in the
-environment or in a `.env` file beside the compose file; the compose file fails
-loudly rather than starting with a weak default.
+The application image is behind a profile, so this starts only the database.
+To run the whole stack: `docker compose --profile app up`.
 
-The compose file is for running the thing end to end locally, not a production
-deployment: the database password is in plain text and the volume is local.
+### What survives what
 
-Then, inside the running container:
+| Command | Data |
+|---|---|
+| `docker compose restart` | Kept |
+| `docker compose down` | **Kept.** The container is removed, the volume is not |
+| Docker Desktop or machine restart | Kept, and the container restarts itself |
+| `docker compose down -v` | **Destroyed.** The `-v` removes volumes |
+| `docker volume prune`, Docker Desktop reset | **Destroyed** |
+
+The first four are verified, not assumed: the container was restarted and then
+fully removed and recreated, and all 3,647 commits, the accounts, and the
+encrypted GitHub token came back each time.
+
+The volume is named `team-github-dashboard-data`, and the Compose project name is
+pinned so renaming the directory cannot orphan it.
+
+## Backups
 
 ```bash
-docker compose exec app npx drizzle-kit migrate
-docker compose exec app npx tsx scripts/create-user.ts --email you@example.com --role admin
+npm run db:backup                          # writes to C:\AWrk\Docker\team-github-dashboard-app
+npm run db:backup -- --out D:\elsewhere
+npm run db:restore -- --latest             # replaces the database, asks first
+npm run db:restore -- --latest --into tgd_scratch   # restore a copy, no confirmation
 ```
+
+`pg_dump` runs inside the container, so no Postgres client tools are needed on
+the host and the version always matches the server. Custom format, so a restore
+can be selective.
+
+**This is the part that actually puts the data outside Docker.** A named volume
+survives everything in the table above except the last row, but it still lives
+in Docker's own storage: a `docker volume prune`, a Desktop reset, or a corrupted
+install takes it. A dump file on a path you control does not care.
+
+Restore into a scratch database periodically. An untested backup is a hope, not a
+backup, and `--into` exists so checking one costs nothing.
 
 ## Vercel
 
@@ -127,7 +155,7 @@ If `STATS_VERSION` changed, follow with `npm run enrich` to recompute statistics
 under the new rules. Nothing breaks without it; the numbers just stay on the old
 computation until you do.
 
-## Backups
+## Backups (hosted)
 
 Everything lives in Postgres. Neon keeps point-in-time restore on paid plans; on
 the free tier, take your own dump.
