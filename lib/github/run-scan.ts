@@ -9,7 +9,7 @@ import { resolveToken } from "@/lib/github/token";
 import { createPool } from "@/lib/db/pool";
 import { upsertCommits } from "@/lib/db/repositories/commits";
 import { recordRun, upsertIssues } from "@/lib/db/repositories/items";
-import { markScanned, trackedHandles } from "@/lib/db/repositories/tracked-users";
+import { markScanned, scanRosterHandles } from "@/lib/db/repositories/tracked-users";
 import {
   checkpointKey,
   clearCheckpoint,
@@ -53,15 +53,20 @@ export async function runScan(
   /**
    * Who to scan, most specific first.
    *
-   * An explicit list from the caller wins. Otherwise the tracked roster, which
-   * is what people actually curate through the interface. The configured list
-   * is the last resort, for a fresh install where nobody has been tracked yet.
+   * An explicit list from the caller wins. Otherwise the whole roster: tracked
+   * people plus anyone already in the commit data. Using tracked people alone
+   * would quietly stop collecting for anyone scanned before that table existed,
+   * while still showing their old numbers, which reads as a drop in output
+   * rather than a drop in coverage.
+   *
+   * The configured list is the last resort, for a fresh install where nobody
+   * has been tracked and nothing has been scanned.
    */
-  const tracked = request.users?.length ? [] : await trackedHandles().catch(() => []);
+  const roster = request.users?.length ? [] : await scanRosterHandles().catch(() => []);
   const users = request.users?.length
     ? request.users
-    : tracked.length
-      ? tracked
+    : roster.length
+      ? roster
       : base.githubUsernames;
 
   const config: ScanConfig = { ...base, githubUsernames: users };

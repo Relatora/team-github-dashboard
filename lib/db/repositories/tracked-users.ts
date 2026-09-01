@@ -91,10 +91,34 @@ export async function markScanned(handles: string[], when = new Date()): Promise
     .where(inArray(trackedUsers.handle, lower));
 }
 
-/** Handles only, for the scanner and the scheduler. Original casing preserved. */
+/** Handles only. Original casing preserved, since GitHub's author filter wants it. */
 export async function trackedHandles(): Promise<string[]> {
   const rows = await getDb()
     .select({ handle: trackedUsers.displayHandle, fallback: trackedUsers.handle })
     .from(trackedUsers);
   return rows.map((r) => r.handle || r.fallback);
+}
+
+/**
+ * Everyone a scan should cover by default: tracked people AND anyone already
+ * present in the commit data.
+ *
+ * Tracked people alone is wrong. Somebody scanned before this table existed is
+ * not in it, so a scheduled scan would quietly stop collecting their work while
+ * still showing their old numbers on the dashboard - a drop in coverage that
+ * looks exactly like a drop in output.
+ *
+ * The union matches what the roster shows, which is the set the interface has
+ * already told everyone is being tracked.
+ */
+export async function scanRosterHandles(): Promise<string[]> {
+  const result = await getDb().execute<{ handle: string }>(sql`
+    select coalesce(nullif(t.display_handle, ''), t.handle) as handle
+    from tracked_users t
+    union
+    select distinct author_login as handle
+    from commits
+    where author_login <> ''
+  `);
+  return result.rows.map((r) => r.handle).filter(Boolean);
 }
