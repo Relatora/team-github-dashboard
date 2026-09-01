@@ -16,6 +16,10 @@ described in `docs/PORTING.md`.
   `lib/db/repositories/commits.ts` is the one most likely to be broken by a
   reasonable-looking change, and breaking it destroys data silently.
 - `docs/PORTING.md` lists ten traps carried over from the original.
+- Two in-process timers exist, the job store and the scheduler, and both assume
+  a single long-lived server. Read the scheduler section of ARCHITECTURE.md
+  before changing either.
+- `docker compose down` keeps the database; `down -v` destroys it.
 
 ## Commands
 
@@ -28,6 +32,10 @@ npm run enrich
 npm run seed-demo
 npm run create-user -- --email you@example.com --role admin
 npm run verify-invariants   # needs a database; see below
+
+docker compose up -d db     # local Postgres on :55432
+npm run db:backup           # pg_dump to C:\AWrk\Docker	eam-github-dashboard-app
+npm run db:restore -- --latest --into tgd_scratch
 ```
 
 There is no test suite yet. Three verification scripts cover the riskiest parts:

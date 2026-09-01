@@ -126,6 +126,9 @@ number for a tool whose entire purpose is not producing wrong numbers.
 | `runs` | One row per scan. `display_names` labels the roster |
 | `app_settings` | Composite key `(user_email, app)`. `__global__` holds the org default |
 | `users` | Accounts. Created by CLI; there is no signup route |
+| `tracked_users` | People tracked deliberately, whether or not anything has been scanned for them |
+| `scan_schedule` | The recurring scan, a single row |
+| `secrets` | The GitHub token, encrypted. Never `app_settings`, which is sent to the browser |
 | `scan_checkpoints`, `repo_branch_cache` | Resume state and discovery cache |
 
 `(author_login, committed_at)` covers every dashboard query.
@@ -157,6 +160,32 @@ Date bounds are half open throughout: a user picking 31 March means through the
 end of that day, so the exclusive upper bound is the next day. Comparing against
 the same day drops everything committed after midnight on the last day.
 
+## The roster
+
+The list of selectable people is the UNION of two populations, and conflating
+them was a real bug:
+
+- **commit authors**, discovered from scanned data
+- **tracked people** (`tracked_users`), added deliberately through the interface
+  whether or not anything has been scanned for them
+
+Deriving it from commits alone meant somebody only became selectable after a
+scan had already found them, so a new joiner could not be added before their
+first scan, and anyone with no commits in the scanned window never appeared.
+
+`neverScanned` is what makes a zero readable. Zero commits after a real scan is
+a fact about the person; zero before one is an absence of information. It is
+cleared even when a scan finds nothing for someone, because that is precisely
+the case it exists to separate.
+
+Adding somebody does not scan them. Scanning spends an hour's API quota, so it
+stays a deliberate act and a misclick in a member list costs nothing.
+
+A scan with no explicit user list covers the whole roster, not only tracked
+people. Tracked-only would quietly stop collecting for anyone scanned before
+that table existed while still showing their old numbers, which reads as a drop
+in output rather than a drop in coverage.
+
 ## Background jobs
 
 `lib/jobs/store.ts` holds running scans in one process's memory, mirroring the
@@ -171,3 +200,32 @@ worker. It is not built because a single-team deployment does not need it.
 Only one scan runs at a time. A second request attaches to the one in flight
 rather than being refused, because two concurrent scans would race for the same
 rate-limit budget and both would stop early.
+
+## The scheduler
+
+`lib/schedule/runner.ts`, started from `instrumentation.ts`, is a one-minute
+ticker that calls the same `startScanJob` the Refresh button uses. Reusing it is
+deliberate: a scheduled scan and a clicked one cannot drift apart, and the
+one-at-a-time rule above becomes the overlap policy for free.
+
+**It carries the same single-process constraint as the job store**, for the same
+reason. On serverless the ticker never runs; behind several instances each one
+fires its own scan against a shared rate limit. The schedule modal says so and
+offers the equivalent cron line, so the answer is visible where somebody needs
+it rather than buried here.
+
+Three details that are easy to get wrong:
+
+- The slot is claimed **before** the scan starts. A scan runs for minutes, and
+  the next tick would otherwise see the same overdue time and start another.
+- An overdue `nextRunAt` at startup means the server was down through a slot, so
+  it fires once rather than silently skipping. Silently skipping is the failure
+  mode of most hand-rolled schedulers.
+- Only a **successful** run advances `lastSuccessAt`. The since-last-success
+  window reads that marker, so a failure must leave its gap for the next run
+  rather than the marker sliding past data nobody collected.
+
+Next-run times go through `date-fns-tz`. Hand-rolled arithmetic is correct for
+ten months and an hour wrong for the two around a daylight saving change, and
+monthly schedules must clamp to the last day of short months rather than skip
+February entirely.
