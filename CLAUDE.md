@@ -34,7 +34,7 @@ npm run create-user -- --email you@example.com --role admin
 npm run verify-invariants   # needs a database; see below
 
 docker compose up -d db     # local Postgres on :55432
-npm run db:backup           # pg_dump to C:\AWrk\Docker	eam-github-dashboard-app
+npm run db:backup           # pg_dump to C:\AWrk\Docker\team-github-dashboard-app
 npm run db:restore -- --latest --into tgd_scratch
 ```
 
