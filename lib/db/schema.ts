@@ -225,3 +225,68 @@ export const secrets = pgTable("secrets", {
 });
 
 export type SecretRow = typeof secrets.$inferSelect;
+
+/**
+ * People the organization has decided to track, independent of whether any of
+ * their work has been scanned yet.
+ *
+ * Without this the roster is "whoever happens to have commits", so somebody can
+ * only be selected after a scan has already found them, and there is no way to
+ * add a new joiner before their first scan. `lastScannedAt` being null is what
+ * lets the interface distinguish "not scanned yet" from "did no work", which are
+ * very different things to show a manager.
+ */
+export const trackedUsers = pgTable("tracked_users", {
+  /** Lowercased, because GitHub handles are compared case insensitively. */
+  handle: text("handle").primaryKey(),
+  /** Original casing, for display. */
+  displayHandle: text("display_handle").notNull().default(""),
+  displayName: text("display_name").notNull().default(""),
+  avatarUrl: text("avatar_url").notNull().default(""),
+  addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+  addedBy: text("added_by").notNull().default(""),
+  lastScannedAt: timestamp("last_scanned_at", { withTimezone: true }),
+});
+
+/**
+ * The recurring scan, as a single row.
+ *
+ * One schedule rather than many: several named schedules would be guessing at a
+ * requirement that does not exist, and they would compete for one rate-limit
+ * budget anyway.
+ */
+export const scanSchedule = pgTable("scan_schedule", {
+  /** Always 1. A check constraint would be noise; nothing else ever writes here. */
+  id: integer("id").primaryKey().default(1),
+  enabled: boolean("enabled").notNull().default(false),
+
+  /** "interval" | "daily" | "weekly" | "monthly" */
+  mode: text("mode").notNull().default("daily"),
+  intervalValue: integer("interval_value").notNull().default(1),
+  /** "hours" | "days" | "weeks" | "months" */
+  intervalUnit: text("interval_unit").notNull().default("days"),
+  /** ["06:00", "18:00"], which is how "several times a day" is expressed. */
+  timesOfDay: text("times_of_day").array().notNull().default(["06:00"]),
+  /** 0 is Sunday, matching Date.getDay. */
+  daysOfWeek: integer("days_of_week").array().notNull().default([1]),
+  dayOfMonth: integer("day_of_month").notNull().default(1),
+  /** IANA zone, so a time survives daylight saving. */
+  timezone: text("timezone").notNull().default("UTC"),
+
+  /** "rolling" | "since-last-success" | "full" */
+  windowMode: text("window_mode").notNull().default("rolling"),
+  windowDays: integer("window_days").notNull().default(30),
+
+  lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+  /** Only advanced by a run that actually succeeded, or since-last-success leaves gaps. */
+  lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+  lastStatus: text("last_status").notNull().default(""),
+  lastMessage: text("last_message").notNull().default(""),
+  nextRunAt: timestamp("next_run_at", { withTimezone: true }),
+
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedBy: text("updated_by").notNull().default(""),
+});
+
+export type TrackedUserRow = typeof trackedUsers.$inferSelect;
+export type ScanScheduleRow = typeof scanSchedule.$inferSelect;

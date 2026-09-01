@@ -54,7 +54,15 @@ export type Metrics = {
   byCategory: CountRow[];
 };
 
-export type RosterUser = { handle: string; name: string; count: number };
+export type RosterUser = {
+  handle: string;
+  name: string;
+  count: number;
+  /** Deliberately tracked, rather than merely present in the commit data. */
+  tracked: boolean;
+  /** Tracked but never scanned, so a zero count means "unknown", not "nothing". */
+  neverScanned: boolean;
+};
 
 export type Run = {
   id: number;
@@ -184,4 +192,59 @@ export function setGitHubToken(
 
 export function clearGitHubToken(): Promise<TokenStatus> {
   return request<TokenStatus>("/api/settings/github-token", { method: "DELETE" });
+}
+
+/* ------------------------------------------------------ tracked users ---- */
+
+export type TrackedUser = {
+  handle: string;
+  displayHandle: string;
+  displayName: string;
+  avatarUrl: string;
+  addedAt: string;
+  addedBy: string;
+  lastScannedAt: string | null;
+};
+
+export function getTrackedUsers(): Promise<TrackedUser[]> {
+  return request<TrackedUser[]>("/api/github/tracked-users");
+}
+
+/** Adds people to the roster. Deliberately does NOT scan them. */
+export function addTrackedUsers(
+  users: Array<{ handle: string; displayName?: string; avatarUrl?: string }>
+): Promise<{ added: number; whitelistUpdated: boolean; users: TrackedUser[] }> {
+  return request("/api/github/tracked-users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ users }),
+  });
+}
+
+export function removeTrackedUsers(
+  handles: string[]
+): Promise<{ removed: number; users: TrackedUser[] }> {
+  return request("/api/github/tracked-users", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ handles }),
+  });
+}
+
+/* ----------------------------------------------------------- schedule ---- */
+
+export type { Schedule, ScheduleState } from "@/lib/schedule/types";
+
+export function getSchedule(): Promise<import("@/lib/schedule/types").ScheduleState> {
+  return request("/api/settings/schedule");
+}
+
+export function saveSchedule(
+  schedule: import("@/lib/schedule/types").Schedule
+): Promise<import("@/lib/schedule/types").ScheduleState> {
+  return request("/api/settings/schedule", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(schedule),
+  });
 }

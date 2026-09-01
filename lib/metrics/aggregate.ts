@@ -220,32 +220,79 @@ export async function getMetrics(query: MetricsQuery): Promise<Metrics> {
 }
 
 /**
- * Distinct commit authors present in the data, with a display name and count.
+ * The roster: everyone selectable in the dashboard's user controls.
  *
- * The roster is dynamic rather than configured, so someone who appears in the
- * data becomes selectable without a config change. Names resolve in order:
- * curated display names from the most recent run, then the git author name,
- * then the handle itself.
+ * This is the UNION of two populations, and conflating them was the bug this
+ * replaced:
+ *
+ *   - commit authors, discovered from scanned data
+ *   - tracked people, added deliberately whether or not anything has been
+ *     scanned for them yet
+ *
+ * Deriving the roster from commits alone meant somebody could only be selected
+ * after a scan had already found them, so adding a new joiner was impossible
+ * until their first scan finished, and somebody with no commits in the scanned
+ * window never appeared at all.
+ *
+ * `neverScanned` carries the distinction that makes a zero readable. Zero
+ * commits after a real scan is a fact about the person; zero before one is an
+ * absence of information, and showing both as a bare "0" tells a manager
+ * something untrue.
+ *
+ * Names resolve in order: curated display names from the most recent run, then
+ * a name captured when the person was tracked, then the git author name, then
+ * the handle.
  */
-export async function getUsers(displayNames: Record<string, string> = {}) {
-  const result = await getDb().execute<{ handle: string; name: string; count: number }>(sql`
+export type RosterUser = {
+  handle: string;
+  name: string;
+  count: number;
+  tracked: boolean;
+  neverScanned: boolean;
+};
+
+export async function getUsers(displayNames: Record<string, string> = {}): Promise<RosterUser[]> {
+  const result = await getDb().execute<{
+    handle: string;
+    name: string;
+    count: number;
+    tracked: boolean;
+    never_scanned: boolean;
+  }>(sql`
+    with authors as (
+      select
+        lower(author_login) as key,
+        (array_agg(author_login order by committed_at desc nulls last))[1] as handle,
+        (array_agg(author_name order by committed_at desc nulls last))[1] as name,
+        count(*)::int as count
+      from commits
+      where author_login <> ''
+      group by lower(author_login)
+    )
     select
-      author_login as handle,
-      (array_agg(author_name order by committed_at desc nulls last))[1] as name,
-      count(*)::int as count
-    from commits
-    where author_login <> ''
-    group by author_login
-    order by count desc
+      coalesce(nullif(t.display_handle, ''), t.handle, a.handle) as handle,
+      coalesce(nullif(t.display_name, ''), a.name, '') as name,
+      coalesce(a.count, 0) as count,
+      (t.handle is not null) as tracked,
+      -- Only meaningful for tracked people. Someone who appears purely because
+      -- they have commits has self-evidently been scanned.
+      (t.handle is not null and t.last_scanned_at is null) as never_scanned
+    from authors a
+    full outer join tracked_users t on t.handle = a.key
+    order by count desc, handle asc
   `);
 
   const curated = new Map(
     Object.entries(displayNames).map(([handle, name]) => [handle.toLowerCase(), name])
   );
 
-  return result.rows.map((row) => ({
-    handle: row.handle,
-    name: curated.get(row.handle.toLowerCase()) || row.name || row.handle,
-    count: Number(row.count),
-  }));
+  return result.rows
+    .filter((row) => row.handle)
+    .map((row) => ({
+      handle: row.handle,
+      name: curated.get(row.handle.toLowerCase()) || row.name || row.handle,
+      count: Number(row.count),
+      tracked: Boolean(row.tracked),
+      neverScanned: Boolean(row.never_scanned),
+    }));
 }

@@ -15,6 +15,13 @@
       "when": 1788277198136,
       "tag": "0001_medical_arachne",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788280690385,
+      "tag": "0002_opposite_anita_blake",
+      "breakpoints": true
     }
   ]
 }

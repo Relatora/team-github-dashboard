@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { ControlCenter } from "./control-center";
-import { DeveloperPanel } from "./developer-panel";
+import { SettingsPanel } from "./settings-panel";
 import { KpiRow, buildKpiCards } from "./kpi-row";
 import { ReportView } from "./report-view";
 import { TileGrid, type Tile, type TileLayouts } from "./tile-grid";
@@ -20,8 +20,11 @@ import {
   getRuns,
   getScanStatus,
   getSettings,
+  addTrackedUsers,
   getGitHubTokenStatus,
+  getTrackedUsers,
   getUsers,
+  removeTrackedUsers,
   saveSettings,
   startScan,
   type Metrics,
@@ -80,6 +83,13 @@ export function Dashboard({ user }: { user: SessionUser }) {
   const { data: roster = [], isSuccess: rosterLoaded } = useQuery({
     queryKey: ["roster"],
     queryFn: getUsers,
+  });
+
+  const { data: tracked = [] } = useQuery({
+    queryKey: ["trackedUsers"],
+    queryFn: getTrackedUsers,
+    enabled: isDeveloper,
+    retry: false,
   });
 
   const { data: runs } = useQuery({ queryKey: ["runs"], queryFn: () => getRuns(1) });
@@ -230,7 +240,7 @@ export function Dashboard({ user }: { user: SessionUser }) {
         // A scan can introduce authors who were not in the data before, so the
         // roster is invalidated too. Without that, a newly fetched person only
         // appears after a full page reload.
-        for (const key of ["metrics", "report", "runs", "roster"]) {
+        for (const key of ["metrics", "report", "runs", "roster", "trackedUsers", "schedule"]) {
           queryClient.invalidateQueries({ queryKey: [key] });
         }
       } else if (status.status === "error") {
@@ -333,16 +343,68 @@ export function Dashboard({ user }: { user: SessionUser }) {
     }
   }, [filters, selectedUsers]);
 
-  const handleFetchUsers = useCallback(async (logins: string[]) => {
-    if (!logins.length) return;
+  /**
+   * Scan over the FULL configured window, not the period on screen.
+   *
+   * The point of adding somebody is to pull in their earlier work, so scanning
+   * them for the current month only would defeat it. Passing no dates makes
+   * runScan use the configured start date through today.
+   */
+  const scanTracked = useCallback(async (users?: string[]) => {
     try {
-      const { job_id } = await startScan({ users: logins });
+      const { job_id } = await startScan(users?.length ? { users } : {});
       setScanJobId(job_id);
-      toast.info(`Scanning ${logins.length} people in the background.`);
+      toast.info("Scanning the full configured window in the background.");
     } catch {
       toast.error("Could not start a scan.");
     }
   }, []);
+
+  /**
+   * Add people to the roster. Deliberately does not scan them.
+   *
+   * They become selectable immediately, and the toast offers the scan rather
+   * than starting one, so a misclick in a list of thirty names costs nothing.
+   */
+  const handleAddUsers = useCallback(
+    async (people: Array<{ handle: string; avatarUrl?: string }>) => {
+      if (!people.length) return;
+      try {
+        const result = await addTrackedUsers(people);
+        for (const key of ["roster", "trackedUsers", "settings"]) {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+        toast.success(
+          `Added ${result.added} ${result.added === 1 ? "person" : "people"} to the roster.` +
+            (result.whitelistUpdated ? " Added to Shown users too." : ""),
+          {
+            action: {
+              label: "Scan now",
+              onClick: () => void scanTracked(people.map((p) => p.handle)),
+            },
+          }
+        );
+      } catch {
+        toast.error("Could not add those people.");
+      }
+    },
+    [queryClient, scanTracked]
+  );
+
+  const handleRemoveUsers = useCallback(
+    async (handles: string[]) => {
+      try {
+        await removeTrackedUsers(handles);
+        for (const key of ["roster", "trackedUsers", "settings"]) {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+        toast.success(handles.length === 1 ? "Removed from the roster." : "Removed from the roster.");
+      } catch {
+        toast.error("Could not remove them.");
+      }
+    },
+    [queryClient]
+  );
 
   const userSlug = selectedUsers.join("-") || "all";
 
@@ -479,12 +541,15 @@ export function Dashboard({ user }: { user: SessionUser }) {
       />
 
       {isDeveloper && (
-        <DeveloperPanel
+        <SettingsPanel
           settings={settings}
           roster={roster}
+          trackedHandles={tracked.map((t) => t.displayHandle || t.handle)}
           isScanning={Boolean(scanJobId)}
           onSave={(scope, patch) => settingsMutation.mutate({ scope, patch })}
-          onFetchUsers={handleFetchUsers}
+          onAddUsers={handleAddUsers}
+          onRemoveUsers={handleRemoveUsers}
+          onScanTracked={() => void scanTracked()}
         />
       )}
 

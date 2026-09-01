@@ -9,6 +9,7 @@ import { resolveToken } from "@/lib/github/token";
 import { createPool } from "@/lib/db/pool";
 import { upsertCommits } from "@/lib/db/repositories/commits";
 import { recordRun, upsertIssues } from "@/lib/db/repositories/items";
+import { markScanned, trackedHandles } from "@/lib/db/repositories/tracked-users";
 import {
   checkpointKey,
   clearCheckpoint,
@@ -48,10 +49,22 @@ export async function runScan(
   progress: (message: string) => void = console.error
 ): Promise<ScanOutcome> {
   const base = getScanConfig();
-  // Per-request user override, so the dashboard can scan exactly who is on screen.
-  const config: ScanConfig = request.users?.length
-    ? { ...base, githubUsernames: request.users }
-    : base;
+
+  /**
+   * Who to scan, most specific first.
+   *
+   * An explicit list from the caller wins. Otherwise the tracked roster, which
+   * is what people actually curate through the interface. The configured list
+   * is the last resort, for a fresh install where nobody has been tracked yet.
+   */
+  const tracked = request.users?.length ? [] : await trackedHandles().catch(() => []);
+  const users = request.users?.length
+    ? request.users
+    : tracked.length
+      ? tracked
+      : base.githubUsernames;
+
+  const config: ScanConfig = { ...base, githubUsernames: users };
 
   const period = resolvePeriod(config, { start: request.startDate, end: request.endDate });
   const warnings: string[] = [];
@@ -168,6 +181,14 @@ export async function runScan(
       incomplete,
       message: incomplete ? "Stopped early on the GitHub rate-limit budget." : undefined,
     });
+
+    /**
+     * Record that these people have been looked at, even when the scan found
+     * nothing for them. That is exactly the case the "never scanned" badge
+     * exists to distinguish: zero commits after a real scan is a fact, zero
+     * before one is an absence of information.
+     */
+    await markScanned(config.githubUsernames).catch(() => {});
 
     if (incomplete) {
       warnings.push(
