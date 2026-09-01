@@ -6,6 +6,13 @@ import { AppHeader } from "@/components/layout/app-header";
 import { Toaster } from "@/components/ui/toaster";
 
 /**
+ * Never prerendered, for the same reason as the login page: with AUTH_ENABLED
+ * off, requireUser returns a synthetic user without touching cookies, so this
+ * subtree becomes prerenderable and would freeze the switch at build time.
+ */
+export const dynamic = "force-dynamic";
+
+/**
  * Everything inside this route group is behind requireUser, so a new page is
  * protected by existing here rather than by remembering to add a check.
  *

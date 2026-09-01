@@ -5,6 +5,17 @@ import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Sign in - Team GitHub Dashboard" };
 
+/**
+ * Never prerendered.
+ *
+ * AUTH_ENABLED is a runtime switch, but with it off this page redirects before
+ * reading any request data, so Next is free to prerender the redirect. Build
+ * once with the switch off, deploy with it on, and sign-in is permanently
+ * broken by a page that was frozen at build time. Forcing dynamic rendering
+ * means the switch is read per request, which is what it claims to be.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage({
   searchParams,
 }: {
