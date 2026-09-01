@@ -3,7 +3,7 @@ import { requireApiRole } from "@/lib/auth/guard";
 import { GitHubClient } from "@/lib/github/client";
 import { listOrgMembers } from "@/lib/github/org";
 import { getScanConfig } from "@/lib/config";
-import { resolveGitHubToken } from "@/lib/config/env";
+import { resolveToken } from "@/lib/github/token";
 
 /**
  * GET /api/github/org-members
@@ -18,7 +18,7 @@ export async function GET() {
 
   const config = getScanConfig();
   const client = new GitHubClient({
-    token: resolveGitHubToken(),
+    token: await resolveToken(),
     apiBase: config.githubApiBase,
     minRemaining: config.rateLimitMinRemaining,
     rateLimitAction: config.rateLimitAction,

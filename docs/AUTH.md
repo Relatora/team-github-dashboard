@@ -99,6 +99,36 @@ real check belongs where the data is. It is a redirect convenience, not a
 security boundary: a forged cookie gets past it and is rejected one layer down
 by `requireUser()` and by each route handler.
 
+## The GitHub token
+
+Separate from sign-in, but it lives under the same trust boundary, so it is
+documented here.
+
+The token used for scanning is set from Developer settings, validated against
+GitHub before it is saved, and stored encrypted with AES-256-GCM under a key
+derived from `AUTH_SECRET` by HKDF. It lives in its own `secrets` table, never in
+`app_settings`, which is serialized to the browser. No endpoint returns the
+token: responses carry only whether one is set, its source, four characters of
+hint, and the account it validated as.
+
+**Precedence is stored first, environment second.** This is the reverse of the
+source tool, deliberately. There, a stale `GITHUB_TOKEN` in the OS environment
+silently beat the configured one, so changing the token appeared to do nothing.
+If the environment won here, saving a token in the dashboard would appear to do
+nothing, which is the same trap behind a nicer interface. The active source is
+always named on screen.
+
+Encryption at rest is worth being precise about. It means a database dump, a
+stray backup, or a read-only SQL leak does not hand over a `repo`-scoped
+credential, and dumps escape far more often than application secrets do. It does
+NOT protect against anyone holding both the database and `AUTH_SECRET`, or
+anyone who can run code in the application. This is protection at rest, not a
+secrets manager.
+
+Rotating `AUTH_SECRET` makes the stored token undecryptable. Nothing breaks: it
+reads as "no stored token", the environment variable takes over if there is one,
+and the interface asks for a new one.
+
 ## Known limits
 
 - **No revocation.** There is no session table, so a stolen token stays valid

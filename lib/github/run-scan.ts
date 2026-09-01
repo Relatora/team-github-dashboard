@@ -5,7 +5,7 @@ import { scanCommits, toCommitRow } from "./scan";
 import { enrichCommits } from "./enrich";
 import { normalizeIssue } from "@/lib/db/repositories/items";
 import { getScanConfig, resolvePeriod, scopeKey, type ScanConfig } from "@/lib/config";
-import { resolveGitHubToken } from "@/lib/config/env";
+import { resolveToken } from "@/lib/github/token";
 import { createPool } from "@/lib/db/pool";
 import { upsertCommits } from "@/lib/db/repositories/commits";
 import { recordRun, upsertIssues } from "@/lib/db/repositories/items";
@@ -57,7 +57,7 @@ export async function runScan(
   const warnings: string[] = [];
 
   const client = new GitHubClient({
-    token: resolveGitHubToken(),
+    token: await resolveToken(),
     apiBase: config.githubApiBase,
     minRemaining: config.rateLimitMinRemaining,
     rateLimitAction: config.rateLimitAction,

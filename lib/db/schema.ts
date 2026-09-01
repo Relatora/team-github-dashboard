@@ -204,3 +204,24 @@ export type IssueRow = typeof issues.$inferSelect;
 export type RunRow = typeof runs.$inferSelect;
 export type UserRow = typeof users.$inferSelect;
 export type AppSettingsRow = typeof appSettings.$inferSelect;
+
+/**
+ * Encrypted application secrets, currently just the GitHub token.
+ *
+ * Deliberately NOT in app_settings: that row is serialized straight to the
+ * browser, and a repo-scoped token must never travel that path. Values here are
+ * AES-256-GCM ciphertext; see lib/crypto.
+ */
+export const secrets = pgTable("secrets", {
+  key: text("key").primaryKey(),
+  /** iv:authTag:ciphertext, all base64url. Never returned to a client. */
+  value: text("value").notNull(),
+  /** Last four characters of the plaintext, so the interface can show which token is set. */
+  hint: text("hint").notNull().default(""),
+  /** What the credential resolved to when it was validated, for display only. */
+  label: text("label").notNull().default(""),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedBy: text("updated_by").notNull().default(""),
+});
+
+export type SecretRow = typeof secrets.$inferSelect;

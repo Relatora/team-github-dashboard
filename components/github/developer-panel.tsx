@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronDown, ChevronRight, KeyRound, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FetchUsersDialog } from "./fetch-users-dialog";
+import { GitHubTokenDialog } from "./github-token-dialog";
+import { getGitHubTokenStatus } from "@/lib/api/github";
 import type { ResolvedDevSettings } from "@/lib/settings/types";
 import type { RosterUser } from "@/lib/api/github";
 
@@ -33,6 +36,9 @@ export function DeveloperPanel({
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<"me" | "everyone">("me");
   const [fetchOpen, setFetchOpen] = useState(false);
+  const [tokenOpen, setTokenOpen] = useState(false);
+
+  const { data: token } = useQuery({ queryKey: ["githubToken"], queryFn: getGitHubTokenStatus });
 
   const sourceLabel =
     settings.source === "user"
@@ -54,6 +60,11 @@ export function DeveloperPanel({
         <span className="ml-2 text-xs font-normal text-muted-foreground">
           {settings.calcMode} counting, removed {settings.showRemoved ? "shown" : "hidden"} ({sourceLabel})
         </span>
+        {token && !token.configured && (
+          <span className="ml-auto rounded-full border border-amber-500/40 px-2 py-0.5 text-xs font-normal text-amber-500">
+            No GitHub token
+          </span>
+        )}
       </button>
 
       {open && (
@@ -126,6 +137,21 @@ export function DeveloperPanel({
           </div>
 
           <div className="flex flex-col gap-1">
+            <Label>GitHub token</Label>
+            <Button
+              size="sm"
+              variant={token?.configured ? "outline" : "default"}
+              onClick={() => setTokenOpen(true)}
+              title="Set the token used for scanning and for listing organization members"
+            >
+              <KeyRound />
+              {token?.configured
+                ? `Set${token.hint ? ` (${token.hint})` : ""}`
+                : "Not set"}
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-1">
             <Label>Data</Label>
             <Button
               size="sm"
@@ -148,7 +174,13 @@ export function DeveloperPanel({
           setFetchOpen(false);
           onFetchUsers(logins);
         }}
+        onConfigureToken={() => {
+          setFetchOpen(false);
+          setTokenOpen(true);
+        }}
       />
+
+      <GitHubTokenDialog open={tokenOpen} onOpenChange={setTokenOpen} />
     </div>
   );
 }

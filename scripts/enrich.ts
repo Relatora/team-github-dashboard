@@ -13,7 +13,7 @@ import "../lib/config/load-env";
 import { applyScanConfigOverride, getScanConfig } from "../lib/config";
 import { GitHubClient, preflight } from "../lib/github/client";
 import { enrichCommits } from "../lib/github/enrich";
-import { resolveGitHubToken } from "../lib/config/env";
+import { resolveToken } from "../lib/github/token";
 import { createPool } from "../lib/db/pool";
 
 function arg(name: string): string | undefined {
@@ -26,7 +26,7 @@ async function main() {
   const config = getScanConfig();
 
   const client = new GitHubClient({
-    token: resolveGitHubToken(),
+    token: await resolveToken(),
     apiBase: config.githubApiBase,
     minRemaining: config.rateLimitMinRemaining,
     rateLimitAction: config.rateLimitAction,

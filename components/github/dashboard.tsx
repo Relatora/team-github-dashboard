@@ -10,6 +10,7 @@ import { KpiRow, buildKpiCards } from "./kpi-row";
 import { ReportView } from "./report-view";
 import { TileGrid, type Tile, type TileLayouts } from "./tile-grid";
 import { PrintDocument } from "./print-document";
+import { GitHubTokenDialog } from "./github-token-dialog";
 import { LocalTime } from "@/components/ui/local-time";
 import { CategoryBarChart, CategoryDonutChart, PALETTE, TimeSeriesChart } from "@/components/charts";
 
@@ -19,6 +20,7 @@ import {
   getRuns,
   getScanStatus,
   getSettings,
+  getGitHubTokenStatus,
   getUsers,
   saveSettings,
   startScan,
@@ -54,6 +56,8 @@ import { hasRole } from "@/lib/auth/roles";
  */
 
 const NO_USERS = "__none__";
+/** Remembers that the first-use token prompt was dismissed. */
+const TOKEN_PROMPT_KEY = "tgd-token-prompt-dismissed";
 const TOP_N = 15;
 
 export function Dashboard({ user }: { user: SessionUser }) {
@@ -80,6 +84,47 @@ export function Dashboard({ user }: { user: SessionUser }) {
 
   const { data: runs } = useQuery({ queryKey: ["runs"], queryFn: () => getRuns(1) });
   const lastRun = runs?.[0];
+
+  /**
+   * First-use prompt for the GitHub token.
+   *
+   * Without a token, Fetch users and Refresh data both fail, and previously
+   * nothing said so until you clicked one and read an error. Developers get the
+   * dialog offered once; dismissing it is remembered, because a prompt that
+   * returns on every reload is worse than no prompt.
+   */
+  const { data: tokenStatus } = useQuery({
+    queryKey: ["githubToken"],
+    queryFn: getGitHubTokenStatus,
+    enabled: isDeveloper,
+    retry: false,
+  });
+
+  const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
+  const [tokenPromptDismissed, setTokenPromptDismissed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return window.localStorage.getItem(TOKEN_PROMPT_KEY) === "1";
+    } catch {
+      // Storage blocked. Treat it as dismissed rather than prompting forever.
+      return true;
+    }
+  });
+
+  const showTokenPrompt =
+    isDeveloper && tokenStatus?.configured === false && !tokenPromptDismissed;
+
+  const closeTokenDialog = useCallback((open: boolean) => {
+    setTokenDialogOpen(open);
+    if (!open) {
+      setTokenPromptDismissed(true);
+      try {
+        window.localStorage.setItem(TOKEN_PROMPT_KEY, "1");
+      } catch {
+        // Nothing to do; the prompt simply reappears next time.
+      }
+    }
+  }, []);
 
   /**
    * The pool of authors selectable in the Users control: the curated whitelist
@@ -460,6 +505,11 @@ export function Dashboard({ user }: { user: SessionUser }) {
           onInteractionEnd={handleInteractionEnd}
         />
       )}
+
+      <GitHubTokenDialog
+        open={tokenDialogOpen || showTokenPrompt}
+        onOpenChange={closeTokenDialog}
+      />
 
       {/* Off-screen print document, captured by Export PDF. */}
       <PrintDocument

@@ -22,8 +22,22 @@ export async function listOrgMembers(
   const warnings: string[] = [];
   const byLogin = new Map<string, OrgMember>();
 
+  // Both of these are configuration rather than failures, and both otherwise
+  // surface as an empty list or an opaque 502. Say which one it is, and say
+  // what to set, because the answer is a one line edit either way.
   if (!config.organizations.length) {
-    warnings.push("No organizations are configured, so there is nobody to list.");
+    warnings.push(
+      "No organizations are configured. Set GITHUB_ORGS in .env.local, for example " +
+        'GITHUB_ORGS="your-org", then restart the server.'
+    );
+    return { members: [], warnings };
+  }
+
+  if (!client.authenticated) {
+    warnings.push(
+      "No GitHub token is set, and listing organization members requires one. " +
+        "Set GITHUB_TOKEN in .env.local, then restart the server."
+    );
     return { members: [], warnings };
   }
 

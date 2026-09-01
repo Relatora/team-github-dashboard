@@ -8,16 +8,22 @@ export * from "./schema";
  * aggressively to spend API quota. Replaces gitHubConfig.yaml from the Python
  * tool.
  *
- * It lives in a committed JSON file rather than in environment variables
- * because it is not secret, it is structured, and a reviewer should be able to
- * see in git history when the tracked roster changed. Secrets stay in the
- * environment; see ./env.
+ * Two layers, split along what is safe to commit.
  *
- * The file is imported rather than read from disk, so the bundler traces it and
- * it works on a host with no filesystem. The CLI scripts can point at a
- * different file with SCAN_CONFIG_PATH by awaiting applyScanConfigOverride
- * before doing anything else; that path is deliberately not available to the
- * server, which should run the configuration that was deployed with it.
+ * `config/scan.json` holds the settings that are policy rather than identity:
+ * branch scope, the rate-limit floor, the ignore globs, which sections to
+ * include. It is committed, because a reviewer should be able to see in git
+ * when that policy changed, and it is imported rather than read from disk so
+ * the bundler traces it and it works on a host with no filesystem.
+ *
+ * The environment holds WHO is being scanned: organizations, repositories,
+ * handles, and real names. Those identify a company and its employees, and
+ * pinning them in a committed file means they follow the repository anywhere it
+ * goes, including into an open-source release. They belong in .env.local next
+ * to the token, not in git.
+ *
+ * The CLI can also point at an entirely different file with SCAN_CONFIG_PATH;
+ * see applyScanConfigOverride.
  */
 
 let cached: ScanConfig | null = null;
@@ -33,8 +39,55 @@ function parse(raw: unknown, source: string): ScanConfig {
   return parsed.data;
 }
 
+/** "a, b ,c" -> ["a","b","c"]. Undefined when the variable is unset or blank. */
+function list(value: string | undefined): string[] | undefined {
+  if (value === undefined) return undefined;
+  const items = value
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return items.length ? items : undefined;
+}
+
+/**
+ * Scope taken from the environment, overriding the committed file.
+ *
+ * Display names are JSON because they are a mapping, and inventing a second
+ * delimiter syntax for one variable is worse than one line of JSON:
+ *   GITHUB_USER_DISPLAY_NAMES='{"octocat":"Mona Lisa"}'
+ */
+function environmentScope(): Partial<ScanConfig> {
+  const scope: Partial<ScanConfig> = {};
+
+  const orgs = list(process.env.GITHUB_ORGS);
+  const repos = list(process.env.GITHUB_REPOS);
+  const users = list(process.env.GITHUB_USERS);
+  const emails = list(process.env.GITHUB_AUTHOR_EMAILS);
+
+  if (orgs) scope.organizations = orgs;
+  if (repos) scope.repositories = repos;
+  if (users) scope.githubUsernames = users;
+  if (emails) scope.authorEmails = emails;
+
+  const names = process.env.GITHUB_USER_DISPLAY_NAMES;
+  if (names) {
+    try {
+      const parsed: unknown = JSON.parse(names);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        scope.userDisplayNames = parsed as Record<string, string>;
+      }
+    } catch {
+      // A malformed mapping must not take the whole application down over a
+      // cosmetic setting. Handles are shown instead of real names.
+      console.warn("GITHUB_USER_DISPLAY_NAMES is not valid JSON, ignoring it.");
+    }
+  }
+
+  return scope;
+}
+
 export function getScanConfig(): ScanConfig {
-  cached ??= parse(bundledConfig, "config/scan.json");
+  cached ??= parse({ ...bundledConfig, ...environmentScope() }, "config/scan.json");
   return cached;
 }
 

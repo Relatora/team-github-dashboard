@@ -20,10 +20,13 @@ export function FetchUsersDialog({
   open,
   onOpenChange,
   onFetch,
+  onConfigureToken,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onFetch: (logins: string[]) => void;
+  /** Jump straight to the token dialog when that is what is missing. */
+  onConfigureToken?: () => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
@@ -56,15 +59,25 @@ export function FetchUsersDialog({
         {/* GitHub returns an empty success rather than an error when the token
             cannot see concealed membership, so an empty list needs explaining
             or it reads as a bug. */}
-        {data?.warnings?.map((warning) => (
-          <p
-            key={warning}
-            className="flex gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive"
-          >
-            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-            {warning}
-          </p>
-        ))}
+        {data?.warnings?.map((warning) => {
+          const aboutToken = warning.includes("token");
+          return (
+            <div
+              key={warning}
+              className="flex gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive"
+            >
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+              <div className="flex flex-col items-start gap-1.5">
+                <span>{warning}</span>
+                {aboutToken && onConfigureToken && (
+                  <Button size="sm" variant="outline" onClick={onConfigureToken}>
+                    Set a token
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {error && (
           <p className="text-sm text-destructive">Could not reach GitHub to list members.</p>

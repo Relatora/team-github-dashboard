@@ -150,3 +150,38 @@ export function saveSettings(
     body: JSON.stringify({ scope, devSettings }),
   });
 }
+
+/* ------------------------------------------------------- GitHub token ---- */
+
+export type TokenStatus = {
+  configured: boolean;
+  source: "stored" | "environment" | "none";
+  /** Last four characters only. The token itself never reaches the browser. */
+  hint: string;
+  label: string;
+  updatedAt: string | null;
+  updatedBy: string | null;
+  ghCliAvailable: boolean;
+};
+
+export type TokenSaveResult = TokenStatus & {
+  validated?: { login?: string; coreRemaining?: number; coreLimit?: number };
+};
+
+export function getGitHubTokenStatus(): Promise<TokenStatus> {
+  return request<TokenStatus>("/api/settings/github-token");
+}
+
+export function setGitHubToken(
+  input: { mode: "token"; token: string } | { mode: "gh-cli" }
+): Promise<TokenSaveResult> {
+  return request<TokenSaveResult>("/api/settings/github-token", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function clearGitHubToken(): Promise<TokenStatus> {
+  return request<TokenStatus>("/api/settings/github-token", { method: "DELETE" });
+}

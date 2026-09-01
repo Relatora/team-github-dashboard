@@ -65,14 +65,18 @@ export function isAuthEnabled(): boolean {
 }
 
 /**
- * Resolve the GitHub token.
+ * The token from the environment only.
+ *
+ * Callers should almost always use resolveToken from lib/github/token instead,
+ * which checks the token stored through the dashboard first. This exists for
+ * the places that genuinely cannot reach the database.
  *
  * A trap worth knowing about, carried over from the source tool: a stale
- * GITHUB_TOKEN left in the OS environment silently wins over one set in a file,
+ * GITHUB_TOKEN left in the OS environment silently wins over one set elsewhere,
  * so changing the token appears to do nothing. On Windows, clear it with:
  *   [Environment]::SetEnvironmentVariable("GITHUB_TOKEN", $null, "User")
  * Environment changes also only reach newly opened terminals.
  */
-export function resolveGitHubToken(): string | undefined {
+export function githubTokenFromEnvironment(): string | undefined {
   return process.env.GITHUB_TOKEN || undefined;
 }
