@@ -14,7 +14,10 @@ described in `docs/PORTING.md`.
 - `docs/ARCHITECTURE.md` lists six invariants that each cost real debugging time
   in the original implementation. The never-clobber upsert in
   `lib/db/repositories/commits.ts` is the one most likely to be broken by a
-  reasonable-looking change, and breaking it destroys data silently.
+  reasonable-looking change, and breaking it destroys data silently. The same
+  rule is reimplemented, not shared, in `lib/store/sqlite/commits.ts` for the
+  public demo - see the Storage layer section of ARCHITECTURE.md before
+  touching either.
 - `docs/PORTING.md` lists ten traps carried over from the original.
 - Two in-process timers exist, the job store and the scheduler, and both assume
   a single long-lived server. Read the scheduler section of ARCHITECTURE.md
@@ -29,9 +32,11 @@ npm run db:generate      # after editing lib/db/schema.ts
 npm run db:migrate
 npm run scan             # exits 2 when the rate limit stopped it early
 npm run enrich
-npm run seed-demo
+npm run seed-demo                          # your Postgres, for local evaluation
+npm run seed-demo -- --target sqlite       # regenerates data/demo.sqlite, the /demo route's data
 npm run create-user -- --email you@example.com --role admin
-npm run verify-invariants   # needs a database; see below
+npm run verify-invariants                  # needs a database; see below
+npm run verify-invariants -- --adapter sqlite  # same check against the demo dataset
 
 docker compose up -d db     # local Postgres on :55432
 npm run db:backup           # pg_dump to C:\AWrk\Docker\team-github-dashboard-app

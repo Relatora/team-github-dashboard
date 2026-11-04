@@ -148,6 +148,57 @@ durable filesystem and lets two instances share one cache.
   protocol and supports transactions. Used by the scanner and the CLI, where
   batched upserts need them. Callers must close it or a CLI script hangs on exit.
 
+## Storage layer
+
+`lib/store/` is a small storage interface (`lib/store/types.ts`) with two
+implementations: `lib/store/postgres.ts`, a thin wrapper around the existing
+repositories and `lib/metrics/aggregate.ts` above, and `lib/store/sqlite/`, a
+real second implementation used only by `/demo` and by
+`scripts/verify-invariants.ts`.
+
+This is deliberately not threaded through the rest of the app. Route
+handlers, the scanner, and the CLI scripts keep calling
+`lib/db/repositories/*` directly, exactly as before this existed - `getStore()`
+and `getDemoStore()` (`lib/store/index.ts`) are used only where the demo path
+needs them. Building a universal data-access layer for every call site was
+explicitly out of scope: the goal is a real second engine that proves the
+interface, not a rewrite of code that already works against real data.
+
+The two adapters diverge in implementation on purpose. `getRoster()`, for
+example, is a hand-written CTE plus `FULL OUTER JOIN` in the Postgres
+adapter (unchanged from `getUsers()` above) and two queries plus a
+JS-side union in the SQLite one, since SQLite's `FULL OUTER JOIN` support is
+version-dependent. Same input, same output shape - the divergence is what
+proves this is a genuine abstraction, not two functions sharing a name.
+
+**The never-clobber invariant is the one rule every adapter must preserve
+exactly.** SQLite (>= 3.35, bundled by `better-sqlite3`) supports the same
+`ON CONFLICT ... DO UPDATE SET x = coalesce(excluded.x, table.x)` shape as
+the Postgres statement, so it is expressed identically rather than
+reimplemented in application code. `npm run verify-invariants -- --adapter
+sqlite` runs the exact same check as the Postgres path, against the demo
+dataset.
+
+## The demo
+
+`/demo` (`app/demo/`) is a public, unauthenticated page. It lives outside
+`app/(dash)/` on purpose: that route group's layout calls `requireUser()`,
+which with `AUTH_ENABLED=false` succeeds trivially and would make "public"
+indistinguishable from "admin, locally, with the switch off". `/demo` has no
+auth call anywhere in its subtree, and `middleware.ts`'s matcher stays scoped
+to `/github/:path*` so it never touches this route either.
+
+`app/api/demo/github/` holds only `metrics`, `report`, `runs`, and `users` -
+GET (and one POST for the report body) routes reading from
+`getDemoStore()`. There is deliberately no `scan`, `settings`, or
+`tracked-users` route under this prefix: the exclusion is structural, not a
+role check that could be misconfigured. `POST /api/demo/github/scan` returns
+404, because the file does not exist, not 401 or 403.
+
+`components/demo/demo-dashboard.tsx` only imports `lib/api/demo`'s read
+calls, never `startScan`, `addTrackedUsers`, or the token dialog - it cannot
+mutate anything for the same reason the API surface cannot.
+
 ## The metrics query
 
 The source was one MongoDB `$facet` with seven branches. Here it is seven
