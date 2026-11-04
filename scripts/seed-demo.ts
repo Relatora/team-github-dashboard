@@ -1,13 +1,20 @@
 /**
- * Fill the database with a plausible synthetic dataset.
+ * Fill a database with a plausible synthetic dataset.
  *
- *   npm run seed-demo
+ *   npm run seed-demo                              # your own Postgres, for local evaluation
  *   npm run seed-demo -- --months 18 --clear
+ *   npm run seed-demo -- --target sqlite           # the public /demo route's isolated dataset
  *
  * This matters more than it looks. Without it, evaluating the product requires
  * pointing it at a real organization and handing it a GitHub token first, which
  * is a large ask before anyone has seen a single screen. With it, a fresh clone
  * shows a full dashboard in one command.
+ *
+ * `--target postgres` (the default) writes into your configured DATABASE_URL,
+ * exactly as before this flag existed - nothing about that path changed.
+ * `--target sqlite` writes into the isolated demo dataset
+ * (lib/store/sqlite, data/demo.sqlite) that /demo reads, and never touches
+ * DATABASE_URL at all.
  *
  * The data is obviously synthetic and should never be mistaken for real: the
  * repositories and people are named as examples.
@@ -15,10 +22,10 @@
 import "../lib/config/load-env";
 import { categorize } from "../lib/github/categorize";
 import { STATS_VERSION } from "../lib/github/stats";
-import { createPool } from "../lib/db/pool";
-import { upsertCommits } from "../lib/db/repositories/commits";
-import { recordRun, upsertIssues, type ItemRow } from "../lib/db/repositories/items";
-import { commits as commitsTable, issues as issuesTable } from "../lib/db/schema";
+import { getStore, getDemoStore, type Store } from "../lib/store";
+import { DEMO_DB_PATH } from "../lib/store/sqlite";
+import { openDemoDb } from "../lib/store/sqlite/db";
+import type { ItemRow } from "../lib/db/repositories/items";
 import type { NewCommitRow } from "../lib/db/schema";
 
 function arg(name: string): string | undefined {
@@ -81,17 +88,29 @@ function makeRandom(seed: number) {
 async function main() {
   const months = Number(arg("months") ?? 12);
   const clear = process.argv.includes("--clear");
+  const target = arg("target") === "sqlite" ? "sqlite" : "postgres";
   const random = makeRandom(20260827);
 
-  const { db, close } = createPool();
+  const store: Store = target === "sqlite" ? getDemoStore() : getStore();
 
   try {
     if (clear) {
-      // Only touches the demo rows, so seeding a database that also holds real
-      // scanned data cannot destroy it.
-      await db.delete(commitsTable);
-      await db.delete(issuesTable);
-      console.log("Cleared existing commits and issues.");
+      if (target === "sqlite") {
+        // The SQLite file holds only demo data, so a full wipe is safe: there
+        // is no real scanned data sharing this file to protect.
+        openDemoDb(DEMO_DB_PATH).exec("delete from commits; delete from issues; delete from runs;");
+      } else {
+        // Postgres shares tables with real scanned data, so --target postgres
+        // clearing here mirrors the original behaviour exactly: it only ever
+        // touched commits and issues, never runs, and that stays true.
+        const { createPool } = await import("../lib/db/pool");
+        const { commits: commitsTable, issues: issuesTable } = await import("../lib/db/schema");
+        const { db, close } = createPool();
+        await db.delete(commitsTable);
+        await db.delete(issuesTable);
+        await close();
+      }
+      console.log(`Cleared existing commits and issues (${target}).`);
     }
 
     const weighted = PEOPLE.flatMap((p) => Array<typeof p>(p.weight).fill(p));
@@ -148,7 +167,7 @@ async function main() {
       }
     }
 
-    const written = await upsertCommits(db, commits);
+    const written = await store.upsertCommits(commits);
 
     const issues: ItemRow[] = Array.from({ length: 60 }, (_, i) => {
       const person = weighted[Math.floor(random() * weighted.length)];
@@ -170,9 +189,9 @@ async function main() {
         url: `https://github.com/${repo}/issues/${1000 + i}`,
       };
     });
-    const issuesWritten = await upsertIssues(db, issues);
+    const issuesWritten = await store.upsertIssues(issues);
 
-    await recordRun(db, {
+    await store.recordRun({
       periodStart: commits[0]?.committedAt ?? null,
       periodEnd: now,
       users: PEOPLE.map((p) => p.login),
@@ -185,11 +204,12 @@ async function main() {
 
     console.log(
       `Seeded ${written} commits and ${issuesWritten} issues across ${REPOS.length} ` +
-        `repositories and ${PEOPLE.length} people, over ${months} months.`
+        `repositories and ${PEOPLE.length} people, over ${months} months (${target}).`
     );
     console.log("These rows are synthetic. Use --clear before importing real data.");
-  } finally {
-    await close();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
   }
 }
 

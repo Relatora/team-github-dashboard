@@ -50,3 +50,9 @@ next-env.d.ts
 
 # Local database dumps, if anyone points BACKUP_DIR inside the project.
 /backups
+
+# The public demo's SQLite dataset. Regenerated deterministically by
+# `npm run seed-demo -- --target sqlite` (see package.json's prebuild script),
+# so it is not committed - same reasoning as not committing a build artifact.
+/data/demo.sqlite
+/data/demo.sqlite-*
