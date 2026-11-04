@@ -39,7 +39,10 @@ export function buildKpiCards(
 
 export function KpiRow({ cards }: { cards: KpiCard[] }) {
   return (
-    <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    // auto-fit rather than a fixed six columns: the card count varies with
+    // the Lines removed and Issues tile settings, and a fixed count left a
+    // seventh card stranded alone on its own row.
+    <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))]">
       {cards.map((card) => (
         <div
           key={card.label}
