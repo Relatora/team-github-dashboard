@@ -40,6 +40,7 @@ export function ControlCenter({
   isScanning,
   isExporting,
   isDeveloper,
+  showCustomRange = isDeveloper,
   onRefresh,
   onExportPdf,
   onExportMarkdown,
@@ -52,6 +53,14 @@ export function ControlCenter({
   isScanning: boolean;
   isExporting: boolean;
   isDeveloper: boolean;
+  /**
+   * Whether the Custom range period option appears. Defaults to isDeveloper
+   * (unchanged behaviour for the real dashboard), but the two are separate
+   * controls: the public demo shows Custom range without isDeveloper ever
+   * being true, since that flag also decides whether Refresh data (a scan)
+   * renders, and nothing under /demo may trigger one.
+   */
+  showCustomRange?: boolean;
   onRefresh: () => void;
   onExportPdf: () => void;
   onExportMarkdown: () => void;
@@ -60,7 +69,7 @@ export function ControlCenter({
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
 
-  const periodOptions = isDeveloper
+  const periodOptions = showCustomRange
     ? [...PERIODS, { value: "custom" as Period, label: "Custom range" }]
     : PERIODS;
 
