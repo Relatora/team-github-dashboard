@@ -60,11 +60,13 @@ function environmentScope(): Partial<ScanConfig> {
   const scope: Partial<ScanConfig> = {};
 
   const orgs = list(process.env.GITHUB_ORGS);
+  const personalAccounts = list(process.env.GITHUB_USER_ACCOUNTS);
   const repos = list(process.env.GITHUB_REPOS);
   const users = list(process.env.GITHUB_USERS);
   const emails = list(process.env.GITHUB_AUTHOR_EMAILS);
 
   if (orgs) scope.organizations = orgs;
+  if (personalAccounts) scope.personalAccounts = personalAccounts;
   if (repos) scope.repositories = repos;
   if (users) scope.githubUsernames = users;
   if (emails) scope.authorEmails = emails;
@@ -141,6 +143,7 @@ export function scopeKey(config: ScanConfig): string {
   const branches = config.branches === "all" ? "all" : [...config.branches].sort().join(",");
   return JSON.stringify({
     orgs: [...config.organizations].sort(),
+    users: [...config.personalAccounts].sort(),
     repos: [...config.repositories].sort(),
     branches,
   });

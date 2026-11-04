@@ -27,11 +27,40 @@ async function listOrgRepos(client: GitHubClient, org: string): Promise<string[]
   return repos.map((r) => r.full_name).filter(Boolean);
 }
 
-/** Explicit repositories if configured, otherwise every repository in each organization. */
+/**
+ * Repositories owned by a personal GitHub account.
+ *
+ * `GET /users/{login}/repos` only ever returns public repositories, even when
+ * the token belongs to that same account. Seeing private repos requires the
+ * authenticated `/user/repos` endpoint instead, which has no `login` in its
+ * path and always means "whoever this token is". `selfLogin` (from
+ * `preflight()`) is how the caller tells the two cases apart.
+ */
+async function listUserRepos(client: GitHubClient, login: string, selfLogin?: string): Promise<string[]> {
+  const isSelf = Boolean(selfLogin) && login.toLowerCase() === selfLogin!.toLowerCase();
+  const repos = isSelf
+    ? await client.paged<{ full_name: string }>("/user/repos", {
+        affiliation: "owner",
+        visibility: "all",
+        sort: "full_name",
+      })
+    : await client.paged<{ full_name: string }>(`/users/${encodeURIComponent(login)}/repos`, {
+        type: "owner",
+        sort: "full_name",
+      });
+  return repos.map((r) => r.full_name).filter(Boolean);
+}
+
+/**
+ * Explicit repositories if configured, otherwise every repository in each
+ * organization plus every repository owned by each configured personal
+ * account. Org and personal-account scope are additive, not exclusive.
+ */
 export async function resolveRepos(
   client: GitHubClient,
   config: ScanConfig,
-  log: (message: string) => void = console.error
+  log: (message: string) => void = console.error,
+  selfLogin?: string
 ): Promise<string[]> {
   if (config.repositories.length) return [...config.repositories];
 
@@ -42,6 +71,14 @@ export async function resolveRepos(
     } catch (error) {
       if (isRateLimitBudgetError(error)) throw error;
       log(`Could not list repositories for ${org}: ${(error as Error).message}`);
+    }
+  }
+  for (const account of config.personalAccounts) {
+    try {
+      found.push(...(await listUserRepos(client, account, selfLogin)));
+    } catch (error) {
+      if (isRateLimitBudgetError(error)) throw error;
+      log(`Could not list repositories for ${account}: ${(error as Error).message}`);
     }
   }
   return found;
@@ -65,12 +102,13 @@ export async function buildRepoBranchMap(
   config: ScanConfig,
   cached: RepoBranchMap,
   modes: { repos: CacheMode; branches: CacheMode },
-  log: (message: string) => void = console.error
+  log: (message: string) => void = console.error,
+  selfLogin?: string
 ): Promise<RepoBranchMap> {
   const repos =
     modes.repos === "cache" && Object.keys(cached).length
       ? Object.keys(cached)
-      : await resolveRepos(client, config, log);
+      : await resolveRepos(client, config, log, selfLogin);
 
   const explicitBranches = config.branches === "all" ? null : config.branches;
   const mapping: RepoBranchMap = {};

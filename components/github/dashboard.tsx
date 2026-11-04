@@ -77,8 +77,13 @@ export function Dashboard({ user }: { user: SessionUser }) {
   const [isExporting, setIsExporting] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const { data: settings = { ...DEFAULT_DEV_SETTINGS, source: "default" } as ResolvedDevSettings } =
-    useQuery({ queryKey: ["settings"], queryFn: getSettings });
+  const {
+    data: settings = {
+      ...DEFAULT_DEV_SETTINGS,
+      source: "default",
+      hasOrganizations: true,
+    } as ResolvedDevSettings,
+  } = useQuery({ queryKey: ["settings"], queryFn: getSettings });
 
   const { data: roster = [], isSuccess: rosterLoaded } = useQuery({
     queryKey: ["roster"],
@@ -543,6 +548,7 @@ export function Dashboard({ user }: { user: SessionUser }) {
       {isDeveloper && (
         <SettingsPanel
           settings={settings}
+          hasOrganizations={settings.hasOrganizations}
           roster={roster}
           trackedHandles={tracked.map((t) => t.displayHandle || t.handle)}
           isScanning={Boolean(scanJobId)}

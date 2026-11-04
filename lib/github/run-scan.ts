@@ -104,7 +104,7 @@ export async function runScan(
     const modes = request.cache ?? { repos: "cache" as CacheMode, branches: "scan" as CacheMode };
 
     const cached = await loadRepoBranchCache(scope);
-    const discovered = await buildRepoBranchMap(client, config, cached, modes, progress);
+    const discovered = await buildRepoBranchMap(client, config, cached, modes, progress, check.login);
     await saveRepoBranchCache(scope, discovered);
 
     const { filtered, before, after } = filterScanBranches(discovered, config);
@@ -181,7 +181,11 @@ export async function runScan(
       periodEnd: period.end,
       users: config.githubUsernames,
       displayNames: config.userDisplayNames,
-      scope: { organizations: config.organizations, repositories: config.repositories },
+      scope: {
+        organizations: config.organizations,
+        personalAccounts: config.personalAccounts,
+        repositories: config.repositories,
+      },
       counts: { commits: commitsWritten, issues: issuesWritten, repositories, enriched },
       incomplete,
       message: incomplete ? "Stopped early on the GitHub rate-limit budget." : undefined,
@@ -231,7 +235,10 @@ async function scanIssues(
 ): Promise<number> {
   const scopes = config.repositories.length
     ? config.repositories.map((r) => `repo:${r}`)
-    : config.organizations.map((o) => `org:${o}`);
+    : [
+        ...config.organizations.map((o) => `org:${o}`),
+        ...config.personalAccounts.map((u) => `user:${u}`),
+      ];
   if (!scopes.length) return 0;
 
   const rows = [];

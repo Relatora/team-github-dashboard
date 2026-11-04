@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import { appSettings } from "@/lib/db/schema";
+import { getScanConfig } from "@/lib/config";
 import {
   DEFAULT_DEV_SETTINGS,
   GITHUB_APP,
@@ -42,14 +43,15 @@ export async function resolveDevSettings(userEmail?: string | null): Promise<Res
   const personal = coerceDevSettings(
     userEmail ? rows.find((r) => r.userEmail === userEmail.toLowerCase())?.devSettings : undefined
   );
+  const hasOrganizations = getScanConfig().organizations.length > 0;
 
   if (Object.keys(personal).length) {
-    return { ...DEFAULT_DEV_SETTINGS, ...personal, source: "user" };
+    return { ...DEFAULT_DEV_SETTINGS, ...personal, source: "user", hasOrganizations };
   }
   if (Object.keys(global).length) {
-    return { ...DEFAULT_DEV_SETTINGS, ...global, source: "global" };
+    return { ...DEFAULT_DEV_SETTINGS, ...global, source: "global", hasOrganizations };
   }
-  return { ...DEFAULT_DEV_SETTINGS, source: "default" };
+  return { ...DEFAULT_DEV_SETTINGS, source: "default", hasOrganizations };
 }
 
 /** Partial upsert: only the keys present are written, so saving one toggle keeps the rest. */

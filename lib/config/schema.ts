@@ -73,7 +73,13 @@ export const scanConfigSchema = z.object({
   authorNames: z.array(z.string()).default([]),
 
   organizations: z.array(z.string()).default([]),
-  /** Explicit repositories, as "owner/name". Takes priority over organizations. */
+  /**
+   * Personal GitHub accounts to scan repositories for, alongside any
+   * organizations. Additive, not a mode switch: a deployment can scan an org
+   * and a personal account in the same run.
+   */
+  personalAccounts: z.array(z.string()).default([]),
+  /** Explicit repositories, as "owner/name". Takes priority over organizations and personalAccounts. */
   repositories: z.array(z.string()).default([]),
 
   startDate: isoDateOrToday.default("2022-01-01"),

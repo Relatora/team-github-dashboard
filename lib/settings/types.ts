@@ -34,6 +34,13 @@ export const DEFAULT_DEV_SETTINGS: DevSettings = {
 export type ResolvedDevSettings = DevSettings & {
   /** Where the effective values came from, so the interface can say so. */
   source: "user" | "global" | "default";
+  /**
+   * Whether any GitHub organization is configured for this deployment.
+   * A personal-account-only scope has no "members" API to browse, so the
+   * interface hides that entry point rather than showing a dialog whose
+   * first act is a permission warning that does not apply.
+   */
+  hasOrganizations: boolean;
 };
 
 /** Narrow untrusted input to the known settings shape, dropping anything else. */

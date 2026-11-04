@@ -35,6 +35,7 @@ import type { ResolvedDevSettings } from "@/lib/settings/types";
  */
 export function SettingsPanel({
   settings,
+  hasOrganizations,
   roster,
   trackedHandles,
   onSave,
@@ -44,6 +45,9 @@ export function SettingsPanel({
   isScanning,
 }: {
   settings: ResolvedDevSettings;
+  /** Whether any GitHub organization is configured. A personal-account-only
+   *  scope has no "members" API, so Add people has nothing to browse. */
+  hasOrganizations: boolean;
   roster: RosterUser[];
   trackedHandles: string[];
   onSave: (scope: "me" | "everyone", patch: Partial<ResolvedDevSettings>) => void;
@@ -138,13 +142,15 @@ export function SettingsPanel({
                 </Select>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <Label>Roster</Label>
-                <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
-                  <Users />
-                  Add people
-                </Button>
-              </div>
+              {hasOrganizations && (
+                <div className="flex flex-col gap-1">
+                  <Label>Roster</Label>
+                  <Button size="sm" variant="outline" onClick={() => setAddOpen(true)}>
+                    <Users />
+                    Add people
+                  </Button>
+                </div>
+              )}
 
               <div className="flex flex-col gap-1">
                 <Label>Collect</Label>
@@ -274,19 +280,21 @@ export function SettingsPanel({
         </div>
       )}
 
-      <FetchUsersDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        alreadyTracked={trackedHandles}
-        onAdd={(people) => {
-          setAddOpen(false);
-          onAddUsers(people);
-        }}
-        onConfigureToken={() => {
-          setAddOpen(false);
-          setTokenOpen(true);
-        }}
-      />
+      {hasOrganizations && (
+        <FetchUsersDialog
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          alreadyTracked={trackedHandles}
+          onAdd={(people) => {
+            setAddOpen(false);
+            onAddUsers(people);
+          }}
+          onConfigureToken={() => {
+            setAddOpen(false);
+            setTokenOpen(true);
+          }}
+        />
+      )}
 
       <GitHubTokenDialog open={tokenOpen} onOpenChange={setTokenOpen} />
 
