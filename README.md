@@ -270,3 +270,9 @@ work anyone did that quarter.
 Use this to see where effort went and to make invisible work visible. Do not use
 it to rank people. `docs/MONETIZATION.md` covers why that is also a legal
 constraint in several jurisdictions, not only an ethical one.
+
+## License
+
+Copyright (c) 2026 Amr Abdallah. All rights reserved.
+
+The source is public to read, not to use. You may view it to evaluate my work, but you may not run, copy, modify, redistribute or train AI models on it. See [LICENSE](LICENSE) for the full terms.

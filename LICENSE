@@ -1,0 +1,54 @@
+Copyright (c) 2026 Amr Abdallah. All rights reserved.
+
+VIEW-ONLY LICENSE
+
+This repository and everything in it (source code, documentation, designs,
+images and other assets, together "the Software") are proprietary and are
+protected by copyright law. The Software is published so that people can
+read it, not so that they can use it.
+
+1. Permitted: viewing for evaluation
+
+   You may view the Software's source code through the website that hosts
+   this repository, solely to evaluate the author's skills and work, for
+   example as part of a hiring decision.
+
+2. Not permitted
+
+   Except as allowed in section 1, you may not, in whole or in part:
+
+   a. use, run, install, deploy or host the Software;
+   b. copy, download or reproduce the Software, other than temporary copies
+      your browser makes while you view it;
+   c. modify, translate, adapt or create derivative works of the Software;
+   d. distribute, publish, sublicense, sell, rent or otherwise make the
+      Software available to anyone;
+   e. use the Software, or any part of it, to train, fine-tune or evaluate a
+      machine-learning or artificial-intelligence model, or include it in a
+      dataset.
+
+3. Hosting platform terms
+
+   Where the hosting platform's terms of service grant its users limited
+   rights (such as viewing or forking the repository on that platform),
+   those rights apply only as far as those terms require. They give no right
+   to use, run or distribute the Software.
+
+4. Reservation of rights
+
+   No other right or license is granted, whether expressly, by implication,
+   by estoppel or otherwise. All rights not expressly granted here are
+   reserved by the copyright holder. To ask for permission to use the
+   Software, contact the copyright holder through the hosting platform.
+
+5. Termination
+
+   Any use of the Software that breaks these terms ends the permission in
+   section 1 immediately and may infringe the copyright holder's rights.
+
+6. No warranty
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+   SOFTWARE OR ANY USE OF IT.
