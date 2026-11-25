@@ -2,6 +2,7 @@
   "name": "team-github-dashboard",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "predev": "tsx scripts/seed-demo.ts --target sqlite --clear",
     "dev": "next dev",
